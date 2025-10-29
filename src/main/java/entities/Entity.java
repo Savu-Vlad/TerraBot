@@ -5,7 +5,7 @@ import java.util.List;
 public abstract class Entity {
     protected String name;
     protected double mass;
-    protected List<Section> sections;
+    protected List<Section> sections;//might not need this!!!!
 
     public Entity() {}
 

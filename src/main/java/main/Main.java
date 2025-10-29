@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fileio.CommandInput;
 import fileio.InputLoader;
+import fileio.SimulationInput;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * The entry point to this homework. It runs the checker that tests your implementation.
@@ -43,6 +46,10 @@ public class Main {
          * output.add(objectNode);
          *
          */
+        ArrayList<SimulationInput> simulations = inputLoader.getSimulations();
+        ArrayList<CommandInput> commands = inputLoader.getCommands();
+        output.add(MAPPER.valueToTree(simulations));
+        output.add(MAPPER.valueToTree(commands));
 
         File outputFile = new File(outputPath);
         outputFile.getParentFile().mkdirs();

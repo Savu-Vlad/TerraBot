@@ -2,7 +2,7 @@ package entities;
 import input.Section;
 import java.util.List;
 
-public class Water extends Entity {
+public abstract class Water extends Entity {
     protected double salinity;
     protected double pH;
     protected double purity;

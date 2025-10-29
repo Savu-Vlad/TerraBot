@@ -2,7 +2,7 @@ package entities;
 import input.Section;
 import java.util.List;
 
-public class Soil extends Entity {
+public abstract class Soil extends Entity {
     protected double nitrogen;
     protected double waterRetention;
     double soilPh;
