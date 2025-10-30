@@ -2,7 +2,7 @@ package entities;
 import input.Section;
 import java.util.List;
 
-public abstract class Plant extends Entity {
+public class Plant extends Entity {
     protected String type;
     protected double oxygenLevel;
     protected String ageStatus;
@@ -13,8 +13,13 @@ public abstract class Plant extends Entity {
                  double oxygenLevel, String ageStatus) {
         super(name, mass, sections);
         this.type = type;
-        this.oxygenLevel = oxygenLevel;
         this.ageStatus = ageStatus;
+        switch (type) {
+            case "FloweringPlant" -> this.oxygenLevel = 6.0;
+            case "Mosses" -> this.oxygenLevel = 0.8;
+            case "Algae" -> this.oxygenLevel = 0.5;
+            default -> this.oxygenLevel = 0.0;//for default values to not duplicate because 2 types of plants have the same oxygen level
+        };
     }
 
     public String getType() {
@@ -42,42 +47,41 @@ public abstract class Plant extends Entity {
     }
 }
 
-class FloweringPlant extends Plant {
-    public FloweringPlant() {
-        this.oxygenLevel = 6.0;
-        this.ageStatus = "young";
-        this.type = "FloweringPlant";
-    }
-}
+//class FloweringPlant extends Plant {
+//    public FloweringPlant() {
+//        this.oxygenLevel = 6.0;
+//        this.ageStatus = "young";
+//        this.type = "FloweringPlant";
+//    }
+//}
+//
+//class GymnospermsPlants extends Plant {
+//    public GymnospermsPlants() {
+//        this.oxygenLevel = 0.0;
+//        this.ageStatus = "young";
+//        this.type = "GymnospermsPlants";
+//    }
+//}
 
-class GymnospermsPlants extends Plant {
-    public GymnospermsPlants() {
-        this.oxygenLevel = 0.0;
-        this.ageStatus = "young";
-        this.type = "GymnospermsPlants";
-    }
-}
-
-class Ferns extends Plant {
-    public Ferns() {
-        this.oxygenLevel = 0.0;
-        this.ageStatus = "young";
-        this.type = "Ferns";
-    }
-}
-
-class Mosses extends Plant {
-    public Mosses() {
-        this.oxygenLevel = 0.8;
-        this.ageStatus = "young";
-        this.type = "Mosses";
-    }
-}
-
-class Algae extends Plant {
-    public Algae() {
-        this.oxygenLevel = 0.5;
-        this.ageStatus = "young";
-        this.type = "Algae";
-    }
-}
+//class Ferns extends Plant {
+//    public Ferns() {
+//        this.oxygenLevel = 0.0;
+//        this.ageStatus = "young";
+//        this.type = "Ferns";
+//    }
+//}
+//
+//class Mosses extends Plant {
+//    public Mosses() {
+//        this.oxygenLevel = 0.8;
+//        this.ageStatus = "young";
+//        this.type = "Mosses";
+//    }
+//}
+//
+//class Algae extends Plant {
+//    public Algae() {
+//        this.oxygenLevel = 0.5;
+//        this.ageStatus = "young";
+//        this.type = "Algae";
+//    }

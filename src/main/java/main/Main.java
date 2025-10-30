@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fileio.CommandInput;
 import fileio.InputLoader;
 import fileio.SimulationInput;
+import robot.Robot;
+import map.Map;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,8 +50,27 @@ public class Main {
          */
         ArrayList<SimulationInput> simulations = inputLoader.getSimulations();
         ArrayList<CommandInput> commands = inputLoader.getCommands();
+
         output.add(MAPPER.valueToTree(simulations));
         output.add(MAPPER.valueToTree(commands));
+
+        //in simulation params there are energy and size of map and the other entites!!!
+
+        SimulationInput simulationParams = simulations.getFirst();
+
+        String mapDimensions = simulationParams.territoryDim;
+        int energyPoints = simulationParams.energyPoints;
+
+        int rowLength = Character.getNumericValue(mapDimensions.charAt(0));
+        int columnLength = Character.getNumericValue(mapDimensions.charAt(2));
+        Map map = Map.getinstance(rowLength, columnLength);
+
+
+
+
+
+
+
 
         File outputFile = new File(outputPath);
         outputFile.getParentFile().mkdirs();
