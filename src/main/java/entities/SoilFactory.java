@@ -12,7 +12,7 @@ public class SoilFactory {
           case "SwampSoil" -> new SwampSoil();
           default -> throw new IllegalArgumentException("Unknown soil type: " + type);
         };
-
+//aici ar trebui sa pun si parametrii la constructori, si sa dau tot in factory builder ca sa pot sa folosesc doar ce ma intereseaza in functie de tip!!!
         soil.setName(name);
         soil.setMass(mass);
         soil.setSections(sections);

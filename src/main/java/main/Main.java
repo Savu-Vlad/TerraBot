@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fileio.CommandInput;
-import fileio.InputLoader;
-import fileio.SimulationInput;
+import fileio.*;
 import robot.Robot;
 import map.Map;
+import java.util.List;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,10 +59,35 @@ public class Main {
 
         String mapDimensions = simulationParams.territoryDim;
         int energyPoints = simulationParams.energyPoints;
+        TerritorySectionParamsInput territoryParams = simulationParams.territorySectionParams;
+        List<PlantInput> plants = territoryParams.plants;
+        List<SoilInput> soils = territoryParams.soil;
+        List<AnimalInput> animals = territoryParams.animals;
+        List<WaterInput> waters = territoryParams.water;
+        List<AirInput> airs = territoryParams.air;
+
+        for (PlantInput plant : plants) {
+            List<PairInput> position = plant.sections;
+            String type = plant.type;
+            double mass = plant.mass;
+
+            for (PairInput pos : position) {
+                int x = pos.x;
+                int y = pos.y;
+                // Add plant to the map at position (x, y)
+                // Map.getInstance().addPlant(x, y, type, mass);
+            }
+
+
+        }
 
         int rowLength = Character.getNumericValue(mapDimensions.charAt(0));
         int columnLength = Character.getNumericValue(mapDimensions.charAt(2));
         Map map = Map.getinstance(rowLength, columnLength);
+
+
+        Robot robot = Robot.getInstance(energyPoints, map, commands, 0, 0);
+
 
 
 

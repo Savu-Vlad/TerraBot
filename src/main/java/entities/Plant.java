@@ -2,7 +2,10 @@ package entities;
 import input.Section;
 import java.util.List;
 
-public class Plant extends Entity {
+public class Plant {
+    private String name;
+    private double mass;
+    private List<Section> sections;
     protected String type;
     protected double oxygenLevel;
     protected String ageStatus;
@@ -11,7 +14,9 @@ public class Plant extends Entity {
 
     public Plant(String name, double mass, List<Section> sections, String type,
                  double oxygenLevel, String ageStatus) {
-        super(name, mass, sections);
+        this.name = name;
+        this.mass = mass;
+        this.sections = sections;
         this.type = type;
         this.ageStatus = ageStatus;
         switch (type) {
