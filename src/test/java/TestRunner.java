@@ -54,7 +54,18 @@ public class TestRunner {
                 Arguments.of("test07", "input/test07_update_battery_errors.json", "out/out_test07_update_battery_errors.json", "ref/ref_test07_update_battery_errors.json", 2),
                 Arguments.of("test08", "input/test08_change_weather.json", "out/out_test08_change_weather.json", "ref/ref_test08_change_weather.json", 3),
                 Arguments.of("test09", "input/test09_scan_plant.json", "out/out_test09_scan_plant.json", "ref/ref_test09_scan_plant.json", 3),
-                Arguments.of("test10", "input/test10_scan_water.json", "out/out_test10_scan_water.json", "ref/ref_test10_scan_water.json", 5)
+                Arguments.of("test10", "input/test10_scan_water.json", "out/out_test10_scan_water.json", "ref/ref_test10_scan_water.json", 5),
+                Arguments.of("test11", "input/test11_scan_animal.json", "out/out_test11_scan_animal.json", "ref/ref_test11_scan_animal.json", 6),
+                Arguments.of("test12", "input/test12_scan_object_errors.json", "out/out_test12_scan_object_errors.json", "ref/ref_test12_scan_object_errors.json", 2),
+                Arguments.of("test13", "input/test13_learn_fact.json", "out/out_test13_learn_fact.json", "ref/ref_test13_learn_fact.json", 4),
+                Arguments.of("test14", "input/test14_improve_environment.json", "out/out_test14_improve_environment.json", "ref/ref_test14_improve_environment.json", 5),
+                Arguments.of("test15", "input/test15_improve_environment_errors.json", "out/out_test15_improve_environment_errors.json", "ref/ref_test15_improve_environment_errors.json", 2),
+                Arguments.of("test16", "input/test16_mid.json", "out/out_test16_mid.json", "ref/ref_test16_mid.json", 6),
+                Arguments.of("test17", "input/test17_multiple_simulations.json", "out/out_test17_multiple_simulations.json", "ref/ref_test17_multiple_simulations.json", 3),
+                Arguments.of("test18", "input/test18_multiple_simulations_error.json", "out/out_test18_multiple_simulations_error.json", "ref/ref_test18_multiple_simulations_error.json", 2),
+                Arguments.of("test19", "input/test19_complex_simple.json", "out/out_test19_complex_simple.json", "ref/ref_test19_complex_simple.json", 6),
+                Arguments.of("test20", "input/test20_complex_errors.json", "out/out_test20_complex_errors.json", "ref/ref_test20_complex_errors.json", 6),
+                Arguments.of("test21", "input/test21_complex_combined.json", "out/out_test21_complex_combined.json", "ref/ref_test21_complex_combined.json", 8)
         );
     }
 
@@ -116,6 +127,7 @@ public class TestRunner {
         int errorCount = checker.process(files);
         checker.destroy();
 
+        String checkStyleErrors = checkstyleAuditListener.toString();
         try {
             assertThat(errorCount).isLessThanOrEqualTo(CheckerConstants.MAXIMUM_ERROR_CHECKSTYLE);
             devmindResults.add(new DevmindResult(
@@ -126,6 +138,7 @@ public class TestRunner {
                     "PASS",
                     CheckerConstants.CHECKSTYLE_POINTS
             ));
+            System.out.println(checkStyleErrors);
         }
         catch (AssertionError e) {
             devmindResults.add(new DevmindErrorResult(
@@ -136,7 +149,7 @@ public class TestRunner {
                     10,
                     e.getMessage()
             ));
-            throw new CheckstyleException(checkstyleAuditListener.toString());
+            throw new CheckstyleException(checkStyleErrors);
         }
     }
 
