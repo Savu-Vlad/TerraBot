@@ -1,8 +1,11 @@
 package map;
 import entities.*;
 import input.Section;
+import lombok.Getter;
+import lombok.Setter;
 
-
+@Getter
+@Setter
 public class Map {
     private static Map instance = null;
     private int rowLength;
@@ -14,8 +17,10 @@ public class Map {
 //        private final int y;
         private Animal animal;
         private Plant plant;
+        @Setter
         private Soil soil;
         private Water water;
+        @Setter
         private Air air;
         private int entitiesCount;
 
@@ -39,17 +44,9 @@ public class Map {
             this.entitiesCount++;
         }
 
-        public void setSoil(Soil soil) {
-            this.soil = soil;
-        }
-
         public void setWater(Water water) {
             this.water = water;
             this.entitiesCount++;
-        }
-
-        public void setAir(Air air) {
-            this.air = air;
         }
     }
 

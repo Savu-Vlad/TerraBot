@@ -3,7 +3,7 @@ import input.Section;
 import java.util.List;
 
 public class AnimalFactory {
-    public Animal createAnimal(String type, String name, double mass, List<Section> sections) {
+    public static Animal createAnimal(String type, String name, double mass) {
         Animal animal = switch(type) {
             case "Herbivores" -> new Herbivores();
             case "Carnivores" -> new Carnivores();
@@ -15,7 +15,6 @@ public class AnimalFactory {
 
         animal.setName(name);
         animal.setMass(mass);
-        animal.setSections(sections);
 
         return animal;
     }

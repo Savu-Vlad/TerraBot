@@ -1,83 +1,81 @@
 package entities;
 import input.Section;
+import lombok.Getter;
+import lombok.Setter;
 import java.util.List;
 
-public abstract class Air extends Entity {
+@Getter
+@Setter
+public abstract class Air {
+    protected String name;
+    protected double mass;
     protected double humidity;
     protected double temperature;
     protected double oxygenLevel;
     protected String type;
 
+
     public Air() {}
 
-    public Air(String name, double mass, List<Section> sections, String type, double humidity,
+    public Air(String name, double mass, String type, double humidity,
                double temperature, double oxygenLevel) {
-        super(name, mass, sections);
-        this.humidity = humidity;
-        this.temperature = temperature;
-        this.oxygenLevel = oxygenLevel;
-    }
-
-    public double getHumidity() {
-        return humidity;
-    }
-
-    public void setHumidity(double humidity) {
-        this.humidity = humidity;
-    }
-
-    public double getTemperature() {
-        return temperature;
-    }
-
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
-    }
-
-    public double getOxigenLevel() {
-        return oxygenLevel;
-    }
-
-    public void setOxigenLevel(double oxygenLevel) {
-        this.oxygenLevel = oxygenLevel;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
+        this.name = name;
+        this.mass = mass;
         this.type = type;
+        this.humidity = humidity;
+        this.temperature = temperature;
+        this.oxygenLevel = oxygenLevel;
     }
+
 }
 
 class TropicalAir extends Air {
-    public TropicalAir() {
-        this.type = "TropicalAir";
+    private double co2Level;
+
+    public TropicalAir(String name, double mass, double humidity,
+                       double temperature, double oxygenLevel, double co2Level) {
+        super(name, mass, "TropicalAir", humidity, temperature, oxygenLevel);
+        this.co2Level = co2Level;
     }
 }
 
 class PolarAir extends Air {
-    public PolarAir() {
-        this.type = "PolarAir";
+    private double iceCrystalConcentration;
+
+    public PolarAir(String name, double mass, double humidity,
+                    double temperature, double oxygenLevel, double iceCrystalConcentration) {
+        super(name, mass, "PolarAir", humidity, temperature, oxygenLevel);
+        this.iceCrystalConcentration = iceCrystalConcentration;
     }
 }
 
 class TemperateAir extends Air {
-    public TemperateAir() {
-        this.type = "TemperateAir";
+    private double pollenLevel;
+
+    public TemperateAir(String name , double mass, double humidity,
+                        double temperature, double oxygenLevel, double pollenLevel) {
+        super(name, mass, "TemperateAir", humidity, temperature, oxygenLevel);
+        this.pollenLevel = pollenLevel;
     }
 }
 
 class DesertAir extends Air {
-    public DesertAir() {
-        this.type = "DesertAir";
+    private double dustParticles;
+
+    public DesertAir(String name, double mass, double humidity,
+                     double temperature, double oxygenLevel, double dustParticles) {
+        super(name, mass, "DesertAir", humidity, temperature, oxygenLevel);
+        this.dustParticles = dustParticles;
     }
 }
 
 class MountainAir extends Air {
-    public MountainAir() {
-        this.type = "MountainAir";
+    private double altitude;
+
+    public MountainAir(String name, double mass, double humidity,
+                       double temperature, double oxygenLevel, double altitude) {
+        super(name, mass, "MountainAir", humidity, temperature, oxygenLevel);
+        this.altitude = altitude;
     }
 }
 

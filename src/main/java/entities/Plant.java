@@ -1,54 +1,35 @@
 package entities;
 import input.Section;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class Plant {
     private String name;
     private double mass;
     private List<Section> sections;
-    protected String type;
-    protected double oxygenLevel;
-    protected String ageStatus;
+    private String type;
+    private double oxygenLevel;
+    private String ageStatus;
+    private double maturityOxygenLevel;
 
     public Plant() {}
 
-    public Plant(String name, double mass, List<Section> sections, String type,
-                 double oxygenLevel, String ageStatus) {
+    public Plant(String name, double mass, String type) {
         this.name = name;
         this.mass = mass;
-        this.sections = sections;
         this.type = type;
-        this.ageStatus = ageStatus;
+        this.ageStatus = "Young";
+        this.maturityOxygenLevel = 0.2;
         switch (type) {
             case "FloweringPlant" -> this.oxygenLevel = 6.0;
             case "Mosses" -> this.oxygenLevel = 0.8;
             case "Algae" -> this.oxygenLevel = 0.5;
-            default -> this.oxygenLevel = 0.0;//for default values to not duplicate because 2 types of plants have the same oxygen level
+            //for default values to not duplicate because 2 types of plants have the same oxygen level
+            default -> this.oxygenLevel = 0.0;
         };
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public double getOxygenLevel() {
-        return oxygenLevel;
-    }
-
-    public void setOxygenLevel(double oxygenLevel) {
-        this.oxygenLevel = oxygenLevel;
-    }
-
-    public String getAgeStatus() {
-        return ageStatus;
-    }
-
-    public void setAgeStatus(String ageStatus) {
-        this.ageStatus = ageStatus;
     }
 }
 

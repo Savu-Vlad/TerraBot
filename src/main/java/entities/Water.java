@@ -1,69 +1,35 @@
 package entities;
 import input.Section;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-public abstract class Water extends Entity {
-    protected double salinity;
-    protected double pH;
-    protected double purity;
-    protected int turbidity;
-    protected double contaminantIndex;
-    protected boolean isFrozen;
+@Getter
+@Setter
+public class Water {
+    private String name;
+    private String type;
+    private double mass;
+    private double salinity;
+    private double pH;
+    private double purity;
+    private double turbidity;
+    private double contaminantIndex;
+    private boolean isFrozen;
 
 
     public Water() {}
 
-    public Water(String name, double mass, List<Section> sections, double salinity, double pH, double purity, int turbidity
+    public Water(String name, String type, double mass, double salinity, double pH, double purity, double turbidity
     , double contaminantIndex, boolean isFrozen) {
-        super(name, mass, sections);
+        this.name = name;
+        this.mass = mass;
         this.salinity = salinity;
         this.pH = pH;
         this.purity = purity;
         this.turbidity = turbidity;
         this.contaminantIndex = contaminantIndex;
         this.isFrozen = isFrozen;
-    }
-
-    public double getSalinity() {
-        return salinity;
-    }
-
-    public void setSalinity(double salinity) {
-        this.salinity = salinity;
-    }
-
-    public double getPH() {return pH;
-    }
-
-    public void setPH(double pH) {
-        this.pH = pH;
-    }
-
-    public double getPurity() {
-        return purity;
-    }
-
-    public void setPurity(double purity) {
-        this.purity = purity;
-    }
-
-    public int getTurbidity() {
-        return turbidity;
-    }
-
-    public void setTurbidity(int turbidity) {
-        this.turbidity = turbidity;
-    }
-
-    public double getContaminantIndex() {
-        return contaminantIndex;
-    }
-
-    public void setContaminantIndex(double contaminantIndex) {
-        this.contaminantIndex = contaminantIndex;
-    }
-
-    public boolean isFrozen() {
-        return isFrozen;
+        this.type = type;
     }
 }

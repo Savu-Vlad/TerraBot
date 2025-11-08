@@ -1,94 +1,76 @@
 package entities;
 import input.Section;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-public abstract class Soil extends Entity {
+@Getter
+@Setter
+public abstract class Soil {
+    protected String name;
+    protected double mass;
     protected double nitrogen;
     protected double waterRetention;
-    double soilPh;
-    double organicMatter;
+    protected double soilPh;
+    protected double organicMatter;
     protected String type;
 
     public Soil() {}
 
-    public Soil(String name, double mass, List<Section> sections, double nitrogen,
+    public Soil(String name, double mass, double nitrogen,
                 double waterRetention, double soilPh, double organicMatter, String type) {
-        super(name, mass, sections);
+        this.name = name;
+        this.mass = mass;
         this.nitrogen = nitrogen;
         this.waterRetention = waterRetention;
         this.soilPh = soilPh;
         this.organicMatter = organicMatter;
-        this.type = type;
-    }
-
-    public double getNitrogen() {
-        return nitrogen;
-    }
-
-    public void setNitrogen(double nitrogen) {
-        this.nitrogen = nitrogen;
-    }
-
-    public double getWaterRetention() {
-        return waterRetention;
-    }
-
-    public void setWaterRetention(double waterRetention) {
-        this.waterRetention = waterRetention;
-    }
-
-    public double getSoilPh() {
-        return soilPh;
-    }
-
-    public void setSoilPh(double soilPh) {
-        this.soilPh = soilPh;
-    }
-
-    public double getOrganicMatter() {
-        return organicMatter;
-    }
-
-    public void setOrganicMatter(double organicMatter) {
-        this.organicMatter = organicMatter;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
         this.type = type;
     }
 }
 
 class ForestSoil extends Soil {
-    public ForestSoil() {
-        this.type = "ForestSoil";
+    private double leafLitter;
+
+    public ForestSoil(String name, double mass, double nitrogen, double waterRetention, double soilPh, double organicMatter, double leafLitter) {
+        super(name, mass, nitrogen, waterRetention, soilPh, organicMatter, "ForestSoil");
+        this.leafLitter = leafLitter;
     }
 }
 
 class SwampSoil extends Soil {
-    public SwampSoil() {
-        this.type = "SwampSoil";
+    private double waterLogging;
+
+    public SwampSoil(String name , double mass, double nitrogen, double waterRetention, double soilPh, double organicMatter, double waterLogging) {
+        super(name, mass, nitrogen, waterRetention, soilPh, organicMatter, "SwampSoil");
+        this.waterLogging = waterLogging;
     }
 }
 
 class DesertSoil extends Soil {
-    public DesertSoil() {
-        this.type = "DesertSoil";
+    private double salinity;
+
+    public DesertSoil(String name, double mass, double nitrogen, double waterRetention, double soilPh, double organicMatter, double salinity) {
+        super(name, mass, nitrogen, waterRetention, soilPh, organicMatter, "DesertSoil");
+        this.salinity = salinity;
     }
 }
 
 class GrasslandSoil extends Soil {
-    public GrasslandSoil() {
-        this.type = "GrasslandSoil";
+    private double rootDensity;
+
+    public GrasslandSoil(String name, double mass, double nitrogen, double waterRetention, double soilPh, double organicMatter, double rootDensity) {
+        super(name, mass, nitrogen, waterRetention, soilPh, organicMatter, "GrasslandSoil");
+        this.rootDensity = rootDensity;
     }
 }
 
 class TundraSoil extends Soil {
-    public TundraSoil() {
-        this.type = "TundraSoil";
+    private double permafrostDepth;
+
+    public TundraSoil(String name, double mass, double nitrogen, double waterRetention, double soilPh, double organicMatter, double permafrostDepth) {
+        super(name, mass, nitrogen, waterRetention, soilPh, organicMatter, "TundraSoil");
+        this.permafrostDepth = permafrostDepth;
     }
 }
 
