@@ -1,41 +1,28 @@
 package entities;
 import input.Section;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public abstract class Entity {
     protected String name;
     protected double mass;
-    protected List<Section> sections;//might not need this!!!!
 
     public Entity() {}
 
-    public Entity(String name, double mass, List<Section> sections) {
+    public Entity(String name, double mass) {
         this.name = name;
         this.mass = mass;
-        this.sections = sections;
     }
 
-    public String getName() {
-        return name;
+    double normalizeScore(double score) {
+        return Math.max(0, Math.min(100, score));
     }
 
-    public void setName(String name) {
-        this.name = name;
+    double roundScore(double score) {
+        return Math.round(score * 100) / 100.0;
     }
 
-    public double getMass() {
-        return mass;
-    }
-
-    public void setMass(double mass) {
-        this.mass = mass;
-    }
-
-    public List<Section> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<Section> sections) {
-        this.sections = sections;
-    }
 }

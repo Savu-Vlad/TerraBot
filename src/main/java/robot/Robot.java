@@ -1,11 +1,19 @@
 package robot;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import commands.implementationCommands.StartSimulation;
 import fileio.CommandInput;
 import map.Map;
 import java.util.List;
 import commands.Commands;
 import input.Section;
 import java.util.ArrayList;
+import lombok.Getter;
+import lombok.Setter;
+import commands.*;
+import commands.implementationCommands.*;
 
+@Getter
+@Setter
 public class Robot {
     private static Robot instance = null;
     private float energy;
@@ -32,51 +40,11 @@ public class Robot {
         return instance;
     }
 
-    public float getEnergy() {
-        return energy;
-    }
-
-    public void setEnergy(float energy) {
-        this.energy = energy;
-    }
-
-    public ArrayList<CommandInput> getCommands() {
-        return commands;
-    }
-
-    public void setCommands(ArrayList<CommandInput> commands) {
-        this.commands = commands;
-    }
-
-    public Map getMap() {
-        return map;
-    }
-
-    public void setMap(Map map) {
-        this.map = map;
-    }
-
-    public boolean isSimulationStarted() {
-        return isSimulationStarted;
-    }
-
-    public void setSimulationStarted(boolean isSimulationStarted) {
-        this.isSimulationStarted = isSimulationStarted;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+    public void executeCommand(String commandName, Map map, ArrayNode output, int timestamp) {
+        switch (commandName) {
+            case "startSimulation" -> new StartSimulation().execute(this, map, output, timestamp);
+            case "endSimulation" -> new endSimulation().execute(this, map, output, timestamp);
+            case "printEnvConditions" -> new printEnvConditions().execute(this, map, output, timestamp);
+        }
     }
 }

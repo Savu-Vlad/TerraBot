@@ -12,9 +12,13 @@ public class Map {
     private int columnLength;
     MapCell[][] grid;
 
-    public class MapCell {
-//        private final int x;
-//        private final int y;
+    public MapCell getMapCell(int x, int y) {
+        return grid[x][y];
+    }
+
+    @Getter
+    @Setter
+    public static class MapCell {
         private Animal animal;
         private Plant plant;
         @Setter
@@ -23,16 +27,6 @@ public class Map {
         @Setter
         private Air air;
         private int entitiesCount;
-
-        public MapCell(Animal animal, Plant plant, Soil soil, Water water, Air air) {
-            this.animal = animal;
-            this.plant = plant;
-            this.soil = soil;
-            this.water = water;
-            this.air = air;
-//            this.x = x;
-//            this.y = y;
-        }
 
         public void setAnimal(Animal animal) {
             this.animal = animal;
@@ -56,6 +50,12 @@ public class Map {
         this.rowLength = rowLength;
         this.columnLength = columnLength;
         this.grid = new MapCell[rowLength][columnLength];
+
+        for (int i = 0; i < rowLength; i++) {
+            for (int j = 0; j < columnLength; j++) {
+                grid[i][j] = new MapCell();
+            }
+        }
     }
 
     public static Map getinstance(int rowLength, int columnLength) {

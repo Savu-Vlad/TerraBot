@@ -56,9 +56,6 @@ public final class Main {
         ArrayList<SimulationInput> simulations = inputLoader.getSimulations();
         ArrayList<CommandInput> commands = inputLoader.getCommands();
 
-        output.add(MAPPER.valueToTree(simulations));
-        output.add(MAPPER.valueToTree(commands));
-
         //in simulation params there are energy and size of map and the other entites!!!
 
         SimulationInput simulationParams = simulations.getFirst();
@@ -118,13 +115,13 @@ public final class Main {
             double turbidity = water.getTurbidity();
             double purity = water.getPurity();
             double contaminantIndex = water.getContaminantIndex();
-            double pH = water.getPH();
+            double ph = water.getPH();
             boolean isFrozen = water.isFrozen();
 
             for (PairInput pos : position) {
                 int x = pos.getX();
                 int y = pos.getY();
-                Water waterMap = new Water(name, type, mass, salinity, pH, purity, turbidity, contaminantIndex, isFrozen);
+                Water waterMap = new Water(name, type, mass, salinity, ph, purity, turbidity, contaminantIndex, isFrozen);
                 map.getGrid()[x][y].setWater(waterMap);
             }
         }
@@ -174,7 +171,10 @@ public final class Main {
                          co2Level, iceCrystalConcentration, pollenLevel, dustParticles, altitude);
                 map.getGrid()[x][y].setAir(airMap);
             }
+        }
 
+        for (CommandInput command : commands) {
+            robot.executeCommand(command.getCommand(), map, output, command.getTimestamp());
         }
 
 

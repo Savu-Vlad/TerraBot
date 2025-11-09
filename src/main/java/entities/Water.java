@@ -11,7 +11,7 @@ public class Water {
     private String type;
     private double mass;
     private double salinity;
-    private double pH;
+    private double ph;
     private double purity;
     private double turbidity;
     private double contaminantIndex;
@@ -20,12 +20,12 @@ public class Water {
 
     public Water() {}
 
-    public Water(String name, String type, double mass, double salinity, double pH, double purity, double turbidity
+    public Water(String name, String type, double mass, double salinity, double ph, double purity, double turbidity
     , double contaminantIndex, boolean isFrozen) {
         this.name = name;
         this.mass = mass;
         this.salinity = salinity;
-        this.pH = pH;
+        this.ph = ph;
         this.purity = purity;
         this.turbidity = turbidity;
         this.contaminantIndex = contaminantIndex;

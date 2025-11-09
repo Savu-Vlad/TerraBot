@@ -9,7 +9,6 @@ import lombok.Setter;
 public class Plant {
     private String name;
     private double mass;
-    private List<Section> sections;
     private String type;
     private double oxygenLevel;
     private String ageStatus;

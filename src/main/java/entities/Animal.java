@@ -1,53 +1,51 @@
 package entities;
 import input.Section;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Getter
+@Setter
 public abstract class Animal extends Entity {
     protected String type;
 
     public Animal() {
     }
 
-    public Animal(String name, double mass, List<Section> sections, String type) {
-        super(name, mass, sections);
+    public Animal(String name, double mass, String type) {
+        super(name, mass);
         this.type = type;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 }
 
 class Herbivores extends Animal {
-    public Herbivores() {
-        this.type = "Herbivores";
+    public Herbivores(String name, double mass) {
+        super(name, mass, "Herbivores");
     }
 }
 
 class Carnivores extends Animal {
-    public Carnivores() {
-        this.type = "Carnivores";
+    public Carnivores(String name, double mass) {
+        super(name, mass, "Carnivores");
     }
 }
 
 class Omnivores extends Animal {
-    public Omnivores() {
-        this.type = "Omnivores";
+    public Omnivores(String name, double mass) {
+        super(name, mass, "Omnivores");
     }
 }
 
 class Detritivores extends Animal {
-    public Detritivores() {
-        this.type = "Detritivores";
+    public Detritivores(String name, double mass) {
+        super(name, mass, "Detritivores");
     }
 }
 
 class Parasites extends Animal {
-    public Parasites() {
-        this.type = "Parasites";
+    public Parasites(String name, double mass) {
+        super(name, mass, "Parasites");
     }
 }

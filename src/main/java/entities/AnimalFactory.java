@@ -1,20 +1,15 @@
 package entities;
-import input.Section;
-import java.util.List;
 
 public class AnimalFactory {
     public static Animal createAnimal(String type, String name, double mass) {
         Animal animal = switch(type) {
-            case "Herbivores" -> new Herbivores();
-            case "Carnivores" -> new Carnivores();
-            case "Omnivores" -> new Omnivores();
-            case "Detritivores" -> new Detritivores();
-            case "Parasites" -> new Parasites();
+            case "Herbivores" -> new Herbivores(name, mass);
+            case "Carnivores" -> new Carnivores(name, mass);
+            case "Omnivores" -> new Omnivores(name, mass);
+            case "Detritivores" -> new Detritivores(name, mass);
+            case "Parasites" -> new Parasites(name, mass);
             default -> throw new IllegalArgumentException("Unknown animal type: " + type);
         };
-
-        animal.setName(name);
-        animal.setMass(mass);
 
         return animal;
     }
