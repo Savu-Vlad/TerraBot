@@ -181,7 +181,7 @@
     "animals" : {
       "type" : "Detritivores",
       "name" : "Earthworm",
-      "mass" : 0.05
+      "mass" : 0.25
     },
     "air" : {
       "type" : "TropicalAir",
@@ -221,7 +221,7 @@
     "animals" : {
       "type" : "Detritivores",
       "name" : "Earthworm",
-      "mass" : 0.05
+      "mass" : 0.25
     },
     "air" : {
       "type" : "TropicalAir",
@@ -230,7 +230,7 @@
       "humidity" : 84.0,
       "temperature" : 28.0,
       "oxygenLevel" : 21.3,
-      "airQuality" : 88.8,
+      "airQuality" : 84.6,
       "co2Level" : 0.05
     }
   },
@@ -257,7 +257,7 @@
     "animals" : {
       "type" : "Detritivores",
       "name" : "Earthworm",
-      "mass" : 0.05
+      "mass" : 0.25
     },
     "air" : {
       "type" : "TropicalAir",
@@ -410,7 +410,7 @@
     "soilQuality" : "poor"
   }, {
     "section" : [ 0, 1 ],
-    "totalNrOfObjects" : 2,
+    "totalNrOfObjects" : 1,
     "airQuality" : "good",
     "soilQuality" : "poor"
   }, {
@@ -652,11 +652,6 @@
       "soilQuality" : 4.44,
       "leafLitter" : 0.3
     },
-    "plants" : {
-      "type" : "Mosses",
-      "name" : "SphagnumMoss",
-      "mass" : 0.25
-    },
     "animals" : {
       "type" : "Herbivores",
       "name" : "Deer",
@@ -668,7 +663,7 @@
       "mass" : 900000.0,
       "humidity" : 60.0,
       "temperature" : 15.0,
-      "oxygenLevel" : 67.1,
+      "oxygenLevel" : 37.5,
       "airQuality" : 100.0,
       "pollenLevel" : 14.0
     }
@@ -712,7 +707,7 @@
       "humidity" : 80.0,
       "temperature" : 27.0,
       "oxygenLevel" : 21.0,
-      "airQuality" : 87.7,
+      "airQuality" : 82.0,
       "co2Level" : 0.05
     }
   },
@@ -806,7 +801,7 @@
     "soilQuality" : "poor"
   }, {
     "section" : [ 0, 1 ],
-    "totalNrOfObjects" : 2,
+    "totalNrOfObjects" : 1,
     "airQuality" : "good",
     "soilQuality" : "poor"
   }, {
@@ -884,11 +879,6 @@
       "soilQuality" : 4.44,
       "leafLitter" : 0.3
     },
-    "plants" : {
-      "type" : "Mosses",
-      "name" : "SphagnumMoss",
-      "mass" : 0.25
-    },
     "animals" : {
       "type" : "Herbivores",
       "name" : "Deer",
@@ -900,8 +890,8 @@
       "mass" : 900000.0,
       "humidity" : 60.0,
       "temperature" : 15.0,
-      "oxygenLevel" : 79.1,
-      "airQuality" : 85.0,
+      "oxygenLevel" : 37.5,
+      "airQuality" : 100.0,
       "pollenLevel" : 14.0
     }
   },

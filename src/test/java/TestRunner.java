@@ -43,6 +43,8 @@ public class TestRunner {
 
     private static final List<DevmindResult> devmindResults = new ArrayList<>();
 
+    private static final String PASSED = "PASSED";
+
     public static Stream<Arguments> data() {
         return Stream.of(
                 Arguments.of("test01", "input/test01_initialize_entities.json", "out/out_test01_initialize_entities.json", "ref/ref_test01_initialize_entities.json", 3),
@@ -91,7 +93,7 @@ public class TestRunner {
                 inputJson,
                 outputJson,
                 refJson,
-                "PASS",
+                PASSED,
                 points
             ));
         } catch (AssertionError e) {
@@ -135,7 +137,7 @@ public class TestRunner {
                     "",
                     "",
                     errorCount,
-                    "PASS",
+                    PASSED,
                     CheckerConstants.CHECKSTYLE_POINTS
             ));
             System.out.println(checkStyleErrors);
@@ -153,12 +155,25 @@ public class TestRunner {
         }
     }
 
+    private boolean hasNonDeveloperAuthor(RevCommit commit) {
+        List<String> exceptedAuthors = List.of(
+            "david.capragiu@gmail.com",
+            "alina.tudorache872@gmail.com",
+            "63539529+Dievaid@users.noreply.github.com",
+            "69516563+alina-t-872@users.noreply.github.com"
+        );
+
+        String userEmail = commit.getAuthorIdent().getEmailAddress();
+        return !exceptedAuthors.contains(userEmail);
+    }
+
     @Test
     public void testGitCommits() throws GitAPIException, IOException {
         File repoDirectory = new File("./");
 
         try (Git git = Git.open(repoDirectory)) {
             List<RevCommit> commits = StreamSupport.stream(git.log().call().spliterator(), false)
+                    .filter(this::hasNonDeveloperAuthor)
                     .sorted(Comparator.comparing(RevCommit::getCommitTime))
                     .toList();
 
@@ -171,7 +186,7 @@ public class TestRunner {
                     "",
                     "",
                     "",
-                    "PASS",
+                    PASSED,
                     CheckerConstants.GIT_POINTS
             ));
         } catch (IOException | AssertionError | GitAPIException e) {
@@ -205,7 +220,7 @@ public class TestRunner {
         System.out.println("Total: " + TestCaseWatcher.totalPoints + "/100");
 
         boolean allPassed = devmindResults.stream()
-                .allMatch(result -> "PASS".equals(result.getStatus()));
+                .allMatch(result -> PASSED.equals(result.getStatus()));
 
         if (allPassed) {
             System.out.println("Yey, ai reusit sa-l ajuti cu succes pe TerraBot sa descopere planeta \uD83D\uDE0A\"");

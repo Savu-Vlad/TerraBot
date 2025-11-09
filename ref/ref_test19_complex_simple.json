@@ -116,7 +116,7 @@
       "humidity" : 62.0,
       "temperature" : 19.0,
       "oxygenLevel" : 45.8,
-      "airQuality" : 85.0,
+      "airQuality" : 100.0,
       "pollenLevel" : 8.5
     }
   },
@@ -471,7 +471,7 @@
     "soilQuality" : "poor"
   }, {
     "section" : [ 1, 1 ],
-    "totalNrOfObjects" : 2,
+    "totalNrOfObjects" : 1,
     "airQuality" : "good",
     "soilQuality" : "poor"
   }, {
@@ -538,7 +538,7 @@
       "humidity" : 15.0,
       "temperature" : 38.0,
       "oxygenLevel" : 19.0,
-      "airQuality" : 0.0,
+      "airQuality" : 22.2,
       "desertStorm" : true
     }
   },

@@ -349,7 +349,7 @@
   "timestamp" : 55
 }, {
   "command" : "scanObject",
-  "message" : "The scanned object is a plant.",
+  "message" : "ERROR: Object not found. Cannot perform action",
   "timestamp" : 56
 }, {
   "command" : "improveEnvironment",

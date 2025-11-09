@@ -1,5 +1,6 @@
 package fileio;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.Getter;
@@ -29,6 +30,7 @@ public final class InputLoader {
     // Helper class for root deserialization
     @Data
     @NoArgsConstructor
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static final class InputRoot {
         private List<SimulationInput> simulationParams;
         private List<CommandInput> commands;
