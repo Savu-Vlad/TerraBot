@@ -5,12 +5,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import commands.CommandInterface;
 import map.Map;
 import robot.Robot;
+import fileio.CommandInput;
 
 public class StartSimulation implements CommandInterface {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp) {
+    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
 
         result.put("command", "startSimulation");

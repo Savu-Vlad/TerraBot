@@ -22,7 +22,6 @@ public abstract class Entity {
     }
 
     double roundScore(double score) {
-        return Math.round(score * 100) / 100.0;
+        return Math.round(score * 100.0) / 100.0;
     }
-
 }

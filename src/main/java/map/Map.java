@@ -10,10 +10,31 @@ public class Map {
     private static Map instance = null;
     private int rowLength;
     private int columnLength;
+    private int mapTimestamp;
     MapCell[][] grid;
 
     public MapCell getMapCell(int x, int y) {
         return grid[x][y];
+    }
+
+    public void updateMapWithoutScan(int timestamp) {
+        int differenceBetweenTimestamps = timestamp - mapTimestamp;
+//        //sa fac un fel de if 2 iterations has passed!!!
+//        if (mapTimestamp % 2 != 0 && mapTimestamp != 1) {
+//            for (int i = 0; i < rowLength; i++) {
+//                for (int j = 0; j < columnLength; j++) {
+//                    if (grid[i][j].getAir() != null) {
+//                        grid[i][j].getAir().increaseAirHumidity(this, i, j);
+//                    }
+//
+//                    //need to also add for the soil !
+//                    if (grid[i][j].getSoil() != null) {
+//                        grid[i][j].getSoil().increaseSoilWaterRetention(this, i, j);
+//                    }
+//                }
+//            }
+//        }
+
     }
 
     @Getter
@@ -27,6 +48,35 @@ public class Map {
         @Setter
         private Air air;
         private int entitiesCount;
+
+        public int calculateSumProbability() {
+            double sum = 0.0;
+            int countForProbabilities = 0;
+
+            if (animal != null) {
+                sum += animal.getPossibilityToAttackRobot();
+                countForProbabilities++;
+            }
+
+            if (plant != null) {
+                sum += plant.getPossibilityToGetStuckInPlant();
+                countForProbabilities++;
+            }
+
+            if (soil != null) {
+                sum += soil.getPossibilityToGetStuckInSoil();
+                countForProbabilities++;
+            }
+
+            if (air != null) {
+                sum += air.getPossibilityToGetDamagedByAir();
+                countForProbabilities++;
+            }
+
+            double mean = Math.abs(sum / countForProbabilities);
+
+            return (int)Math.round(mean);
+        }
 
         public void setAnimal(Animal animal) {
             this.animal = animal;
@@ -44,9 +94,7 @@ public class Map {
         }
     }
 
-    //making it private to implement singleton pattern
-
-    private Map(int rowLength, int columnLength) {
+    public Map(int rowLength, int columnLength) {
         this.rowLength = rowLength;
         this.columnLength = columnLength;
         this.grid = new MapCell[rowLength][columnLength];
@@ -57,13 +105,4 @@ public class Map {
             }
         }
     }
-
-    public static Map getinstance(int rowLength, int columnLength) {
-        if (instance == null) {
-            return new Map(rowLength, columnLength);
-        }
-
-        return instance;
-    }
-
 }

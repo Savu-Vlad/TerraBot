@@ -1,4 +1,5 @@
 package entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import input.Section;
 import java.util.List;
 import lombok.Getter;
@@ -10,9 +11,14 @@ public class Plant {
     private String name;
     private double mass;
     private String type;
+    @JsonIgnore
     private double oxygenLevel;
+    @JsonIgnore
     private String ageStatus;
+    @JsonIgnore
     private double maturityOxygenLevel;
+    @JsonIgnore
+    private double possibilityToGetStuckInPlant;
 
     public Plant() {}
 
@@ -23,11 +29,26 @@ public class Plant {
         this.ageStatus = "Young";
         this.maturityOxygenLevel = 0.2;
         switch (type) {
-            case "FloweringPlant" -> this.oxygenLevel = 6.0;
-            case "Mosses" -> this.oxygenLevel = 0.8;
-            case "Algae" -> this.oxygenLevel = 0.5;
-            //for default values to not duplicate because 2 types of plants have the same oxygen level
-            default -> this.oxygenLevel = 0.0;
+            case "FloweringPlants" -> {
+                this.oxygenLevel = 6.0;
+                this.possibilityToGetStuckInPlant = 0.9;
+            }
+            case "Mosses" -> {
+                this.oxygenLevel = 0.8;
+                this.possibilityToGetStuckInPlant = 0.4;
+            }
+            case "Algae" -> {
+                this.oxygenLevel = 0.5;
+                this.possibilityToGetStuckInPlant = 0.2;
+            }
+            case "GymnospermsPlants" ->  {
+                this.oxygenLevel = 0.0;
+                this.possibilityToGetStuckInPlant = 0.6;
+            }
+            case "Ferns" -> {
+                this.oxygenLevel = 0.0;
+                this.possibilityToGetStuckInPlant = 0.3;
+            }
         };
     }
 }

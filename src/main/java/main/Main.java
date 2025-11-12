@@ -72,9 +72,9 @@ public final class Main {
 
         int rowLength = Character.getNumericValue(mapDimensions.charAt(0));
         int columnLength = Character.getNumericValue(mapDimensions.charAt(2));
-        Map map = Map.getinstance(rowLength, columnLength);
+        Map map = new Map(rowLength, columnLength);
 
-        Robot robot = Robot.getInstance(energyPoints, map, commands, 0, 0);
+        Robot robot = new Robot(energyPoints, map, commands, 0, 0);
 
         for (PlantInput plant : plants) {
             List<PairInput> position = plant.getSections();
@@ -174,7 +174,7 @@ public final class Main {
         }
 
         for (CommandInput command : commands) {
-            robot.executeCommand(command.getCommand(), map, output, command.getTimestamp());
+            robot.executeCommand(command.getCommand(), map, output, command.getTimestamp(), command);
         }
 
 

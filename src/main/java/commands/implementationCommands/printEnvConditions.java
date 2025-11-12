@@ -4,47 +4,57 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import commands.Commands;
 import commands.CommandInterface;
+import entities.Water;
+import fileio.CommandInput;
 import map.Map;
 import robot.Robot;
 
 public class printEnvConditions implements CommandInterface {
-    private final static ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp) {
+    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
         ObjectNode envOutput = MAPPER.createObjectNode();
 
         Map.MapCell currentCell = map.getMapCell(robot.getX(), robot.getY());
 
+        result.put("command", "printEnvConditions");
+
         if (!robot.isSimulationStarted()) {
-            result.put("error", "ERROR: Simulation not started. Cannot perform action");
+            result.put("message", "ERROR: Simulation not started. Cannot perform action");
+        } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
+            result.put("message", "ERROR: Robot still charging. Cannot perform action");
         } else {
             if (currentCell.getSoil() != null) {
                 envOutput.set("soil", entityToJsonNode(currentCell.getSoil()));
             }
 
             if (currentCell.getPlant() != null) {
-                envOutput.set("plant", entityToJsonNode(currentCell.getPlant()));
+                envOutput.set("plants", entityToJsonNode(currentCell.getPlant()));
             }
 
             if (currentCell.getAnimal() != null) {
-                envOutput.set("animal", entityToJsonNode(currentCell.getAnimal()));
+                envOutput.set("animals", entityToJsonNode(currentCell.getAnimal()));
             }
 
             if (currentCell.getWater() != null) {
-                envOutput.set("water", entityToJsonNode(currentCell.getWater()));
+                Water water = currentCell.getWater();
+                ObjectNode waterNode = MAPPER.createObjectNode();
+                waterNode.put("mass", water.getMass());
+                waterNode.put("name", water.getName());
+                waterNode.put("type", water.getType());
+                envOutput.set("water", waterNode);
             }
 
             if (currentCell.getAir() != null) {
                 envOutput.set("air", entityToJsonNode(currentCell.getAir()));
             }
 
-            result.put("Command", "printEnvConditions");
             result.set("output", envOutput);
-            result.put("timestamp", timestamp);
-            output.add(result);
         }
+
+        result.put("timestamp", timestamp);
+        output.add(result);
     }
 
     private ObjectNode entityToJsonNode(Object entity) {

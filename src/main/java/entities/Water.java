@@ -1,4 +1,5 @@
 package entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import input.Section;
 import java.util.List;
 import lombok.Getter;
@@ -6,10 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Water {
-    private String name;
+public class Water extends Entity{
     private String type;
-    private double mass;
     private double salinity;
     private double ph;
     private double purity;
@@ -22,8 +21,7 @@ public class Water {
 
     public Water(String name, String type, double mass, double salinity, double ph, double purity, double turbidity
     , double contaminantIndex, boolean isFrozen) {
-        this.name = name;
-        this.mass = mass;
+        super(name, mass);
         this.salinity = salinity;
         this.ph = ph;
         this.purity = purity;
