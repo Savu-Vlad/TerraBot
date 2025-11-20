@@ -14,7 +14,6 @@ public abstract class Air extends Entity {
     protected double temperature;
     protected double oxygenLevel;
     protected double airQuality;
-    protected String type;
     @JsonIgnore
     protected String airQualityIndicator;
     @JsonIgnore
@@ -29,15 +28,15 @@ public abstract class Air extends Entity {
     }
 
     public double calculateFinalResult(double toxicityAQ) {
-        return Math.round(toxicityAQ * 100.0) / 100.0;
+        double normalizedToxicity = normalizeScore(toxicityAQ);
+        return Math.round(normalizedToxicity * normalizationFactor) / normalizationFactor;
     }
 
     public Air() {}
 
     public Air(String name, double mass, String type, double humidity,
                double temperature, double oxygenLevel) {
-        super(name, mass);
-        this.type = type;
+        super(name, mass, type);
         this.humidity = humidity;
         this.temperature = temperature;
         this.oxygenLevel = oxygenLevel;
@@ -64,9 +63,13 @@ public abstract class Air extends Entity {
         }
     }
 
-    public void changeWeatherConditions(CommandInput command) {
-        //this doesn't do anything, it is intended to be overridden in each air subclass, doing this to not use instanceof!!
+    @Override
+    public void updateMapWithScannedObject(Map map, Map.MapCell cell, int timestamp) {
+
     }
+
+    public abstract void changeWeatherConditions(CommandInput command);
+        //this doesn't do anything, it is intended to be overridden in each air subclass, doing this to not use instanceof!!
 }
 
 @Getter
@@ -149,7 +152,7 @@ class TemperateAir extends Air {
         /* Check if the season is null and the method calls on a type of air that isn't TemperateAir
             * to avoid the program having a null pointer exception !!
             * should be ok for the other methods because all the data in the json if not specified is 0 or false
-            * so for the other methods it would just do air quality - 0 or + 0 so it is safe6
+            * so for the other methods it would just do air quality - 0 or + 0 so it is safe
          */
         if (command.getSeason() == null) {
             return;
@@ -162,7 +165,9 @@ class TemperateAir extends Air {
 
 @Getter
 class DesertAir extends Air {
+    @JsonIgnore
     private final double dustParticles;
+    private boolean desertStorm ;
 
     public DesertAir(String name, double mass, double humidity,
                      double temperature, double oxygenLevel, double dustParticles) {
@@ -183,7 +188,12 @@ class DesertAir extends Air {
 
     @Override
     public void changeWeatherConditions(CommandInput command) {
+        if (command.isDesertStorm()) {
+            this.desertStorm = true;
+        }
+
         this.airQuality -= (command.isDesertStorm() ? 30 : 0);
+
     }
 }
 

@@ -17,7 +17,6 @@ public abstract class Soil extends Entity {
     protected double soilQuality;
     @JsonIgnore
     protected double possibilityToGetStuckInSoil;
-    protected String type;
     @JsonIgnore
     protected String soilQualityIndicator;
 
@@ -25,12 +24,16 @@ public abstract class Soil extends Entity {
 
     public Soil(String name, double mass, double nitrogen,
                 double waterRetention, double soilpH, double organicMatter, String type) {
-        super(name, mass);
+        super(name, mass, type);
         this.nitrogen = nitrogen;
         this.waterRetention = waterRetention;
         this.soilpH = soilpH;
         this.organicMatter = organicMatter;
-        this.type = type;
+    }
+
+    @Override
+    public void updateMapWithScannedObject(Map map, Map.MapCell cell, int timestamp) {
+
     }
 
     public abstract double calculateSoilQuality();

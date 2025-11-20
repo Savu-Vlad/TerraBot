@@ -172,20 +172,10 @@ public final class Main {
                 map.getGrid()[x][y].setAir(airMap);
             }
         }
-
+        //nu mai merge ca am schimbat aia la entity sa fie la super !!!
         for (CommandInput command : commands) {
             robot.executeCommand(command.getCommand(), map, output, command.getTimestamp(), command);
         }
-
-
-
-
-
-
-
-
-
-
 
 
         File outputFile = new File(outputPath);

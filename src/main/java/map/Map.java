@@ -1,20 +1,41 @@
 package map;
 import entities.*;
-import input.Section;
 import lombok.Getter;
 import lombok.Setter;
+import fileio.CommandInput;
+import robot.Robot;
 
 @Getter
 @Setter
 public class Map {
-    private static Map instance = null;
-    private int rowLength;
-    private int columnLength;
+    private final int rowLength;
+    private final int columnLength;
     private int mapTimestamp;
-    MapCell[][] grid;
+    private MapCell[][] grid;
 
     public MapCell getMapCell(int x, int y) {
         return grid[x][y];
+    }
+
+    public void updateMapWithChangeWeatherCondition(CommandInput command) {
+        for (int i = 0; i < rowLength; i++) {
+            for (int j = 0; j < columnLength; j++) {
+                if (grid[i][j].getAir() != null) {
+                    grid[i][j].getAir().changeWeatherConditions(command);
+                }
+            }
+        }
+    }
+
+    //aici o sa am robotul si o sa actualizez tot ceea ce este in inventarul robotului
+    public void updateMapWithScan(Robot robot, Map map, int timestamp) {
+        if (robot.getInventory().isEmpty()) {
+            return;
+        }
+        //sa verific daca e egal timestamp ul de la care s a primit scan object cu cel curent !
+        for (Entity entity : robot.getInventory()) {
+            entity.updateMapWithScannedObject(map, grid[entity.getX()][entity.getY()], timestamp) ;
+        }
     }
 
     public void updateMapWithoutScan(int timestamp) {
