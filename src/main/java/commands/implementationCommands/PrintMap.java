@@ -1,21 +1,21 @@
 package commands.implementationCommands;
-import commands.Commands;
 import commands.CommandInterface;
-import entities.Air;
-import entities.Soil;
-import entities.Water;
 import map.Map;
 import robot.Robot;
 import fileio.CommandInput;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import input.Section;
 
-public class printMap implements CommandInterface {
+public class PrintMap implements CommandInterface {
+
+    /**
+     * Method that prints all the cells of the map and their entities count
+     * and qualities.
+     * */
 
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
+    public void execute(final Robot robot, final Map map, final ArrayNode output,
+                        final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
         result.put("command", "printMap");
 

@@ -3,14 +3,27 @@ package main;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import fileio.*;
+import fileio.AnimalInput;
+import fileio.AirInput;
+import fileio.PairInput;
+import fileio.PlantInput;
+import fileio.SoilInput;
+import fileio.SimulationInput;
+import fileio.TerritorySectionParamsInput;
+import fileio.WaterInput;
+import fileio.InputLoader;
+import fileio.CommandInput;
 import robot.Robot;
 import map.Map;
 import java.util.List;
-import entities.*;
-
-
+import entities.Animal;
+import entities.Plant;
+import entities.Water;
+import entities.Soil;
+import entities.Air;
+import entities.AirFactory;
+import entities.AnimalFactory;
+import entities.SoilFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,9 +68,6 @@ public final class Main {
          */
         ArrayList<SimulationInput> simulations = inputLoader.getSimulations();
         ArrayList<CommandInput> commands = inputLoader.getCommands();
-
-        //in simulation params there are energy and size of map and the other entites!!!
-
         SimulationInput simulationParams = simulations.getFirst();
 
         String mapDimensions = simulationParams.getTerritoryDim();
@@ -95,8 +105,6 @@ public final class Main {
             String type = animal.getType();
             String name = animal.getName();
             double mass = animal.getMass();
-            //for the carnivore and parasite I need to implement the feedAnimal method in a way that it would first eat an animal
-            // and then a plant if there is no anima;
 
             for (PairInput pos : position) {
                 int x = pos.getX();
@@ -121,7 +129,8 @@ public final class Main {
             for (PairInput pos : position) {
                 int x = pos.getX();
                 int y = pos.getY();
-                Water waterMap = new Water(name, type, mass, salinity, ph, purity, turbidity, contaminantIndex, isFrozen);
+                Water waterMap = new Water(name, type, mass, salinity,
+                        ph, purity, turbidity, contaminantIndex, isFrozen);
                 map.getGrid()[x][y].setWater(waterMap);
             }
         }
@@ -144,14 +153,15 @@ public final class Main {
             for (PairInput pos : positions) {
                 int x = pos.getX();
                 int y = pos.getY();
-                Soil soilMap = SoilFactory.createSoil(type, name, mass, nitrogen, waterRetention, soilPH, organicMatter,
+                Soil soilMap = SoilFactory.createSoil(type, name, mass, nitrogen,
+                        waterRetention, soilPH, organicMatter,
                         leafLitter, waterLogging, permafrostDepth, rootDensity, salinity);
                 map.getGrid()[x][y].setSoil(soilMap);
             }
         }
 
         for (AirInput air : airs) {
-            List <PairInput> positions = air.getSections();
+            List<PairInput> positions = air.getSections();
             String name = air.getName();
             String type = air.getType();
             double mass = air.getMass();
@@ -167,14 +177,16 @@ public final class Main {
             for (PairInput pos : positions) {
                 int x = pos.getX();
                 int y = pos.getY();
-                Air airMap = AirFactory.createAir(type, name, mass, humidity, temperature, oxygenLevel,
+                Air airMap = AirFactory.createAir(type, name, mass,
+                        humidity, temperature, oxygenLevel,
                          co2Level, iceCrystalConcentration, pollenLevel, dustParticles, altitude);
                 map.getGrid()[x][y].setAir(airMap);
             }
         }
         //nu mai merge ca am schimbat aia la entity sa fie la super !!!
         for (CommandInput command : commands) {
-            robot.executeCommand(command.getCommand(), map, output, command.getTimestamp(), command);
+            robot.executeCommand(command.getCommand(), map, output,
+                    command.getTimestamp(), command);
         }
 
 

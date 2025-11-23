@@ -11,7 +11,7 @@ public class KnowledgeBase {
     private String topic;
     private ArrayList<String> facts;
 
-    public KnowledgeBase(String topic) {
+    public KnowledgeBase(final String topic) {
         this.topic = topic;
         this.facts = new ArrayList<>();
     }

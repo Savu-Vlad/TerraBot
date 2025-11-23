@@ -6,6 +6,11 @@ import robot.Robot;
 import fileio.CommandInput;
 
 public interface CommandInterface {
-    static final ObjectMapper MAPPER = new ObjectMapper();
+    ObjectMapper MAPPER = new ObjectMapper();
+
+    /**
+     * This will be overridden in each command class
+     * and will execute a specific command.
+     */
     void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command);
 }

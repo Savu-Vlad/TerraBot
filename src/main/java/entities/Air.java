@@ -1,11 +1,10 @@
 package entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import input.Section;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.List;
 import map.Map;
 import fileio.CommandInput;
+import robot.Robot;
 
 @Getter
 @Setter
@@ -23,39 +22,53 @@ public abstract class Air extends Entity {
     @JsonIgnore
     protected int maxScore;
 
-    public double calculateToxicityAQ(double airQualityScore, double maxScore) {
-        return 100 * (1 - airQualityScore / maxScore);
+    /**
+     * Method that calculates the toxicity of the air based on that formula
+     */
+    public double calculateToxicityAQ(final double airQualityScore, final double maxScoreValue) {
+        return oneHundred * (1 - airQualityScore / maxScoreValue);
     }
 
-    public double calculateFinalResult(double toxicityAQ) {
-        double normalizedToxicity = normalizeScore(toxicityAQ);
+    /**
+     * Method that return the final attack probability that can harm the robot
+     */
+    public double calculateFinalResult(final double toxicityAQValue) {
+        double normalizedToxicity = normalizeScore(toxicityAQValue);
         return Math.round(normalizedToxicity * normalizationFactor) / normalizationFactor;
     }
 
-    public Air() {}
-
-    public Air(String name, double mass, String type, double humidity,
-               double temperature, double oxygenLevel) {
+    public Air(final String name, final double mass, final String type, final double humidity,
+               final double temperature, final double oxygenLevel) {
         super(name, mass, type);
         this.humidity = humidity;
         this.temperature = temperature;
         this.oxygenLevel = oxygenLevel;
     }
 
+    /**
+     * Method that calculates air quality scode in each subclass with its own formula
+     * */
+
     public abstract double calculateAirQuality();
 
+    /**
+     * Method that sets air quality and its indicator based on specific bounds
+     * */
     public void setAirQualityIndicator() {
         double quality = calculateAirQuality();
         this.airQualityIndicator = QualityLevel.fromScore(quality).getIdentifier();
         this.airQuality = quality;
     }
 
-    //if there are 2 timestamp passed, the humidity increases, thus the probability and other values are recalculated
-    public void increaseAirHumidity(Map map, int x, int y) {
+    /**
+     * Method tht increases air humidity when water is in the map cell
+     * */
+
+    public void increaseAirHumidity(final Map map, final int x, final int y) {
 
         if (map.getMapCell(x, y).getWater() != null) {
 
-            this.humidity += 0.1;
+            this.humidity += zeroPointOne;
             this.airQuality = calculateAirQuality();
             setAirQualityIndicator();
             this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
@@ -64,38 +77,46 @@ public abstract class Air extends Entity {
     }
 
     @Override
-    public void updateMapWithScannedObject(Map map, Map.MapCell cell, int timestamp) {
+    public void updateMapWithScannedObject(final Robot robot, final Map map,
+                                           final Map.MapCell cell, final int timestamp) {
 
     }
 
+    /**
+     * Method that changes weather conditions based on command input
+     * it is overridden in each subclass of Air
+     * */
     public abstract void changeWeatherConditions(CommandInput command);
-        //this doesn't do anything, it is intended to be overridden in each air subclass, doing this to not use instanceof!!
 }
 
 @Getter
 class TropicalAir extends Air {
     private final double co2Level;
 
-    public TropicalAir(String name, double mass, double humidity,
-                       double temperature, double oxygenLevel, double co2Level) {
+    TropicalAir(final String name, final double mass, final double humidity,
+                       final double temperature, final double oxygenLevel, final double co2Level) {
         super(name, mass, "TropicalAir", humidity, temperature, oxygenLevel);
         this.co2Level = co2Level;
         setAirQualityIndicator();
-        this.maxScore = 82;
+        this.maxScore = eightyTwo;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double TropicalAirQualityScore = (oxygenLevel * 2) + (humidity * 0.5) - (co2Level * 0.01);
-        double normalizedQualityScore = normalizeScore(TropicalAirQualityScore);
+        double tropicalAirQualityScore = (oxygenLevel * two)
+                +
+                (humidity * zeroPointFive)
+                -
+                (co2Level * zeroPointZeroOne);
+        double normalizedQualityScore = normalizeScore(tropicalAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(CommandInput command) {
-        this.airQuality += (command.getRainfall() * 0.3);
+    public void changeWeatherConditions(final CommandInput command) {
+        this.airQuality += (command.getRainfall() * zeroPointThree);
     }
 }
 
@@ -103,11 +124,12 @@ class TropicalAir extends Air {
 class PolarAir extends Air {
     private final double iceCrystalConcentration;
 
-    public PolarAir(String name, double mass, double humidity,
-                    double temperature, double oxygenLevel, double iceCrystalConcentration) {
+    PolarAir(final String name, final double mass, final double humidity,
+             final double temperature,
+             final double oxygenLevel, final double iceCrystalConcentration) {
         super(name, mass, "PolarAir", humidity, temperature, oxygenLevel);
         this.iceCrystalConcentration = iceCrystalConcentration;
-        this.maxScore = 142;
+        this.maxScore = oneFortyTwo;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
         setAirQualityIndicator();
@@ -115,14 +137,18 @@ class PolarAir extends Air {
 
     @Override
     public double calculateAirQuality() {
-        double PolarAirQualityScore = (oxygenLevel * 2) + (100 - Math.abs(temperature)) - (iceCrystalConcentration * 0.05);
-        double normalizedQualityScore = normalizeScore(PolarAirQualityScore);
+        double polarAirQualityScore = (oxygenLevel * two)
+                +
+                (oneHundred - Math.abs(temperature))
+                -
+                (iceCrystalConcentration * zeroPointZeroFive);
+        double normalizedQualityScore = normalizeScore(polarAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(CommandInput command) {
-        this.airQuality -= (command.getWindSpeed() * 0.2);
+    public void changeWeatherConditions(final CommandInput command) {
+        this.airQuality -= (command.getWindSpeed() * zeroPointTwo);
     }
 }
 
@@ -130,35 +156,41 @@ class PolarAir extends Air {
 class TemperateAir extends Air {
     private final double pollenLevel;
 
-    public TemperateAir(String name, double mass, double humidity,
-                        double temperature, double oxygenLevel, double pollenLevel) {
+    TemperateAir(final String name, final double mass, final double humidity,
+                        final double temperature, final double oxygenLevel,
+                        final double pollenLevel) {
         super(name, mass, "TemperateAir", humidity, temperature, oxygenLevel);
         this.pollenLevel = pollenLevel;
         setAirQualityIndicator();
-        this.maxScore = 84;
+        this.maxScore = eightyFour;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double TemperateAirQualityScore = (oxygenLevel * 2) + (humidity * 0.7) - (pollenLevel * 0.1);
-        double normalizedQualityScore = normalizeScore(TemperateAirQualityScore);
+        double temperateAirQualityScore = (oxygenLevel * two)
+                +
+                (humidity * zeroPointSeven)
+                -
+                (pollenLevel * zeroPointOne);
+        double normalizedQualityScore = normalizeScore(temperateAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(CommandInput command) {
+    public void changeWeatherConditions(final CommandInput command) {
         /* Check if the season is null and the method calls on a type of air that isn't TemperateAir
             * to avoid the program having a null pointer exception !!
-            * should be ok for the other methods because all the data in the json if not specified is 0 or false
+            * should be ok for the other methods because all the data
+            * in the json if not specified is 0 or false
             * so for the other methods it would just do air quality - 0 or + 0 so it is safe
          */
         if (command.getSeason() == null) {
             return;
         }
 
-        double seasonPenalty = command.getSeason().equalsIgnoreCase("Spring") ? 15 : 0;
+        double seasonPenalty = command.getSeason().equalsIgnoreCase("Spring") ? fifteen : zero;
         this.airQuality -= seasonPenalty;
     }
 }
@@ -167,32 +199,37 @@ class TemperateAir extends Air {
 class DesertAir extends Air {
     @JsonIgnore
     private final double dustParticles;
-    private boolean desertStorm ;
+    private boolean desertStorm;
 
-    public DesertAir(String name, double mass, double humidity,
-                     double temperature, double oxygenLevel, double dustParticles) {
+    DesertAir(final String name, final double mass, final double humidity,
+              final double temperature,
+              final double oxygenLevel, final double dustParticles) {
         super(name, mass, "DesertAir", humidity, temperature, oxygenLevel);
         this.dustParticles = dustParticles;
         setAirQualityIndicator();
-        this.maxScore = 65;
+        this.maxScore = sixtyFive;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double DesertAirQualityScore = (oxygenLevel * 2) - (dustParticles * 0.2) - (temperature * 0.3);
-        double normalizedQualityScore = normalizeScore(DesertAirQualityScore);
+        double desertAirQualityScore = (oxygenLevel * two)
+                -
+                (dustParticles * zeroPointTwo)
+                -
+                (temperature * zeroPointThree);
+        double normalizedQualityScore = normalizeScore(desertAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(CommandInput command) {
+    public void changeWeatherConditions(final CommandInput command) {
         if (command.isDesertStorm()) {
             this.desertStorm = true;
         }
 
-        this.airQuality -= (command.isDesertStorm() ? 30 : 0);
+        this.airQuality -= (command.isDesertStorm() ? thirty : zero);
 
     }
 }
@@ -201,27 +238,27 @@ class DesertAir extends Air {
 class MountainAir extends Air {
     private final double altitude;
 
-    public MountainAir(String name, double mass, double humidity,
-                       double temperature, double oxygenLevel, double altitude) {
+    MountainAir(final String name, final double mass, final double humidity,
+                final double temperature, final double oxygenLevel, final double altitude) {
         super(name, mass, "MountainAir", humidity, temperature, oxygenLevel);
         this.altitude = altitude;
         setAirQualityIndicator();
-        this.maxScore = 78;
+        this.maxScore = seventyEight;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double oxygenFactor = oxygenLevel - (altitude/1000 * 0.5);
-        double MountainAirQualityScore = (oxygenFactor * 2) + (humidity * 0.6);
-        double normalizedQualityScore = normalizeScore(MountainAirQualityScore);
+        double oxygenFactor = oxygenLevel - (altitude / oneThousand * zeroPointFive);
+        double mountainAirQualityScore = (oxygenFactor * two) + (humidity * zeroPointSix);
+        double normalizedQualityScore = normalizeScore(mountainAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(CommandInput command) {
-        this.airQuality -= (command.getNumberOfHikers() * 0.1);
+    public void changeWeatherConditions(final CommandInput command) {
+        this.airQuality -= (command.getNumberOfHikers() * zeroPointOne);
     }
 
 }

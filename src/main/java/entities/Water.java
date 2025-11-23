@@ -1,10 +1,8 @@
 package entities;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import input.Section;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import map.Map;
+import robot.Robot;
 
 @Getter
 @Setter
@@ -19,10 +17,9 @@ public class Water extends Entity {
     private boolean scannedByRobot;
     private double waterQuality;
 
-    public Water() {}
-
-    public Water(String name, String type, double mass, double salinity, double ph, double purity, double turbidity
-    , double contaminantIndex, boolean isFrozen) {
+    public Water(final String name, final String type, final double mass, final double salinity,
+                 final double ph, final double purity, final double turbidity,
+                 final double contaminantIndex, final boolean isFrozen) {
         super(name, mass, type);
         this.salinity = salinity;
         this.ph = ph;
@@ -33,38 +30,56 @@ public class Water extends Entity {
         this.waterQuality = calculateWaterQuality();
     }
 
+    /**
+     * Method that calculates the water quality with a formula
+     * */
     public double calculateWaterQuality() {
-        double purityScore = purity / 100;
-        double pHScore = 1 - Math.abs(ph - 7.5) / 7.5;
-        double salinityScore = 1 - (salinity / 350);
-        double turbidityScore = 1 - (turbidity / 100);
-        double contaminantScore = 1 - (contaminantIndex / 100);
-        int frozenScore = isFrozen ? 0 : 1;
+        double purityScore = purity / oneHundred;
+        double pHScore = one - Math.abs(ph - sevenPointFive) / sevenPointFive;
+        double salinityScore = one - (salinity / threeHundredFifty);
+        double turbidityScore = one - (turbidity / oneHundred);
+        double contaminantScore = one - (contaminantIndex / oneHundred);
+        int frozenScore = isFrozen ? zero : one;
 
-        return (0.3 * purityScore + 0.2 * pHScore + 0.15 * salinityScore + 0.1 * turbidityScore
-                + 0.15 * contaminantScore + 0.2 * frozenScore) * 100;
+        return (zeroPointThree * purityScore
+                +
+                zeroPointTwo * pHScore + zeroPointFifteen * salinityScore
+                +
+                zeroPointOne * turbidityScore
+                + zeroPointFifteen * contaminantScore + zeroPointTwo * frozenScore) * oneHundred;
     }
 
+    /**
+     * Method that updates the map if water is scanned in that cell
+     * It adds waterHumidity from Air, growthRate to plant and waterRetention to soil
+     * */
     @Override
-    public void updateMapWithScannedObject(Map map, Map.MapCell cell, int timestamp) {
-        if (timestamp < cell.getWater().getTimestampAtWhichItWasScanned() + 1) {
+    public void updateMapWithScannedObject(final Robot robot,
+                                           final Map map,
+                                           final Map.MapCell cell,
+                                           final int timestamp) {
+        if (timestamp < cell.getWater().getTimestampAtWhichItWasScanned() + one) {
             return;
         }
 
-        int differentiationBetweenTimestamps = timestamp - cell.getWater().getTimestampAtWhichItWasScanned();
+        int differentiationBetweenTimestamps
+                =
+                timestamp - cell.getWater().getTimestampAtWhichItWasScanned();
 
-        if (differentiationBetweenTimestamps % 2 == 0) {
+        if (differentiationBetweenTimestamps % two == zero) {
             if (cell.getSoil() != null) {
-                cell.getSoil().setWaterRetention(roundScore(cell.getSoil().getWaterRetention() + 0.1));
+                cell.getSoil().setWaterRetention(roundScore(
+                        cell.getSoil().getWaterRetention() + zeroPointOne));
             }
 
             if (cell.getAir() != null) {
-                cell.getAir().setHumidity(roundScore(cell.getAir().getHumidity() + 0.1));
+                cell.getAir().setHumidity(roundScore(cell.getAir().getHumidity() + zeroPointOne));
                 cell.getAir().setAirQualityIndicator();
             }
 
             if (cell.getPlant() != null) {
-                cell.getPlant().setGrowthRate(roundScore(cell.getPlant().getGrowthRate() + 0.2));
+                cell.getPlant().setGrowthRate(roundScore(
+                        cell.getPlant().getGrowthRate() + zeroPointTwo));
             }
         }
     }

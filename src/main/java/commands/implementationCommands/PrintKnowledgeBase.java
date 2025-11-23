@@ -1,20 +1,20 @@
 package commands.implementationCommands;
-import commands.Commands;
 import commands.CommandInterface;
-import entities.Air;
-import entities.Soil;
-import entities.Water;
 import map.Map;
 import robot.Robot;
 import fileio.CommandInput;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import input.Section;
 
-public class printKnowledgeBase implements CommandInterface {
+public class PrintKnowledgeBase implements CommandInterface {
+
+    /**
+     * Method that prints the facts that the robot has learned
+     * */
+
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
+    public void execute(final Robot robot, final Map map, final ArrayNode output,
+                        final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
         result.put("command", "printKnowledgeBase");
         if (!robot.isSimulationStarted()) {

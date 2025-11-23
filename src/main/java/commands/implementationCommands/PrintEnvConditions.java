@@ -1,18 +1,17 @@
 package commands.implementationCommands;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import commands.Commands;
 import commands.CommandInterface;
 import entities.Water;
 import fileio.CommandInput;
 import map.Map;
 import robot.Robot;
 
-public class printEnvConditions implements CommandInterface {
+public class PrintEnvConditions implements CommandInterface {
 
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
+    public void execute(final Robot robot, final Map map, final ArrayNode output,
+                        final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
         ObjectNode envOutput = MAPPER.createObjectNode();
 
@@ -57,7 +56,7 @@ public class printEnvConditions implements CommandInterface {
         output.add(result);
     }
 
-    private ObjectNode entityToJsonNode(Object entity) {
+    private ObjectNode entityToJsonNode(final Object entity) {
         return MAPPER.valueToTree(entity);
     }
 }

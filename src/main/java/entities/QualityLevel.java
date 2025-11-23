@@ -17,6 +17,10 @@ public enum QualityLevel {
         this.identifier = identifier;
     }
 
+    /**
+     * Method that returns the quality level from the score that is provided
+     * */
+
     public static QualityLevel fromScore(final double score) {
         for (QualityLevel level : QualityLevel.values()) {
             if (score >= level.minScore && score < level.maxScore) {

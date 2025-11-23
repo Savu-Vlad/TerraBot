@@ -1,8 +1,6 @@
 package commands.implementationCommands;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import commands.Commands;
 import commands.CommandInterface;
 import map.Map;
 import robot.KnowledgeBase;
@@ -12,9 +10,17 @@ import entities.Entity;
 
 import java.util.ArrayList;
 
-public class learnFact implements CommandInterface {
+public class LearnFact implements CommandInterface {
+    private final int energyCostForLearningFact = 2;
+
+    /**
+     * Method that learns facts about a specific entity that is already in the robot's inventory.
+     * The facts will be used in the improveEnvironment command.
+     * */
+
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
+    public void execute(final Robot robot, final Map map, final ArrayNode output,
+                        final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
         Entity foundEntity = null;
 
@@ -23,7 +29,7 @@ public class learnFact implements CommandInterface {
             result.put("message", "ERROR: Simulation not started. Cannot perform action");
         } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
             result.put("message", "ERROR: Robot still charging. Cannot perform action");
-        } else if (robot.getEnergy() - 2 < 0) {
+        } else if (robot.getEnergy() - energyCostForLearningFact < 0) {
             result.put("message", "ERROR: Not enough battery left. Cannot perform action");
         } else {
             String component = command.getComponents();
@@ -38,7 +44,7 @@ public class learnFact implements CommandInterface {
         if (foundEntity == null) {
             result.put("message", "ERROR: Subject not yet saved. Cannot perform action");
         } else {
-            robot.setEnergy(robot.getEnergy() - 2);
+            robot.setEnergy(robot.getEnergy() - energyCostForLearningFact);
             ArrayList<Entity> inventory = robot.getInventory();
             ArrayList<KnowledgeBase> knowledgeBase = robot.getKnowledgeBase();
 
@@ -63,9 +69,6 @@ public class learnFact implements CommandInterface {
                     }
                 }
             }
-
-
-            //aici sa adaug in knowledge base
 
             result.put("message", "The fact has been successfully saved in the database.");
         }

@@ -1,10 +1,9 @@
 package entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import input.Section;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import map.Map;
+import robot.Robot;
 
 @Getter
 @Setter
@@ -32,45 +31,61 @@ public class Plant extends Entity {
     @JsonIgnore
     private final double thirdStageOxygenLevel = 0.4;
 
-    public Plant() {}
+    public Plant() {
 
-    public Plant(String name, double mass, String type) {
+    }
+
+    public Plant(final String name, final double mass, final String type) {
         super(name, mass, type);
         this.ageStatus = "Young";
         this.maturityOxygenLevel = firstStageOxygenLevel;
         switch (type) {
             case "FloweringPlants" -> {
-                this.oxygenLevel = 6.0;
-                this.possibilityToGetStuckInPlant = 0.9;
+                this.oxygenLevel = sixPointZero;
+                this.possibilityToGetStuckInPlant = zeroPointNine;
             }
             case "Mosses" -> {
-                this.oxygenLevel = 0.8;
-                this.possibilityToGetStuckInPlant = 0.4;
+                this.oxygenLevel = zeroPointEight;
+                this.possibilityToGetStuckInPlant = zeroPointFour;
             }
             case "Algae" -> {
-                this.oxygenLevel = 0.5;
-                this.possibilityToGetStuckInPlant = 0.2;
+                this.oxygenLevel = zeroPointFive;
+                this.possibilityToGetStuckInPlant = zeroPointTwo;
             }
             case "GymnospermsPlants" ->  {
-                this.oxygenLevel = 0.0;
-                this.possibilityToGetStuckInPlant = 0.6;
+                this.oxygenLevel = zeroPointZero;
+                this.possibilityToGetStuckInPlant = zeroPointSix;
             }
             case "Ferns" -> {
-                this.oxygenLevel = 0.0;
-                this.possibilityToGetStuckInPlant = 0.3;
+                this.oxygenLevel = zeroPointZero;
+                this.possibilityToGetStuckInPlant = zeroPointThree;
             }
-        };
+            default -> {
+                this.oxygenLevel = zeroPointZero;
+                this.possibilityToGetStuckInPlant = zeroPointZero;
+            }
+        }
     }
 
+    /**
+     * Method that calculates the oxygen level to be given to air
+     * The oxygen from the plant itself and the maturity oxygen level
+     * Based on the age it can give more or less oxygen
+     * */
     public double calculateOxygenLevelToBeGivenToAir() {
         return oxygenLevel + maturityOxygenLevel;
     }
 
+    /**
+     * Method that checks if the plant aged, if the plant is above 1.0 growthRate
+     * the oxygen level given to air increases, then at 2.0 it decreases and at
+     * 3.0 the plant dies
+     * */
     public void checkIfPlantAged() {
-        if (growthRate >= 3.0) {
+        if (growthRate >= threePointZero) {
             deadPlant = true;
             maturityOxygenLevel = zero;
-            oxygenLevel = 0;
+            oxygenLevel = zero;
         } else if (growthRate >= 2.0) {
             ageStatus = "Old";
             maturityOxygenLevel = thirdStageOxygenLevel;
@@ -80,19 +95,34 @@ public class Plant extends Entity {
         }
     }
 
+    /**
+     * Method that gives oxygen to air when the plant is scanned
+     * */
     @Override
-    public void updateMapWithScannedObject(Map map, Map.MapCell cell, int timestamp) {
+    public void updateMapWithScannedObject(final Robot robot, final Map map,
+                                           final Map.MapCell cell,
+                                           final int timestamp) {
+        if (cell.getPlant() == null) {
+            return;
+        }
         if (cell.getPlant().getTimestampAtWhichItWasScanned() == timestamp) {
             return;
         }
 
         if (cell.getSoil() != null) {
             double previousGrowthRate = cell.getPlant().getGrowthRate();
-            previousGrowthRate += 0.2;
+            previousGrowthRate += zeroPointTwo;
             cell.getPlant().setGrowthRate(roundScore(previousGrowthRate));
+            if (cell.getPlant().getGrowthRate() > threePointZero) {
+                cell.setPlant(null);
+            }
         }
 
-        cell.getPlant().checkIfPlantAged();
+        if (cell.getPlant() != null) {
+            cell.getPlant().checkIfPlantAged();
+        } else {
+            return;
+        }
 
         double currentAirOxygenLevel = cell.getAir().getOxygenLevel();
 
@@ -100,7 +130,8 @@ public class Plant extends Entity {
         cell.getAir().setOxygenLevel(roundScore(currentAirOxygenLevel));
 
         Air tempAir = cell.getAir();
-        double tempToxicity = tempAir.calculateToxicityAQ(tempAir.getAirQuality(), tempAir.getMaxScore());
+        double tempToxicity = tempAir.calculateToxicityAQ(tempAir.getAirQuality(),
+                tempAir.getMaxScore());
         cell.getAir().setToxicityAQ(tempToxicity);
         double tempFinalProb = tempAir.calculateFinalResult(tempToxicity);
 

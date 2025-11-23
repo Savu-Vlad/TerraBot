@@ -7,10 +7,18 @@ import map.Map;
 import map.MapCardinalPoints;
 import robot.Robot;
 
-public class moveRobot implements CommandInterface {
+public class MoveRobot implements CommandInterface {
+    private final int numberOfDirections = 4;
+    /**
+     * This method moves the robot to the adjacent cell that has the lowest probability
+     * to attack the robot. That probability is calculated from each entity that can attack
+     * the robot, animal, plant, soil and air.
+     * The sum is calculated by sum/count.
+     * */
 
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
+    public void execute(final Robot robot, final Map map, final ArrayNode output,
+                        final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
 
         result.put("command", "moveRobot");
@@ -28,14 +36,16 @@ public class moveRobot implements CommandInterface {
                 return;
             }
 
-            int[] probabilities = new int[4];
+            int[] probabilities = new int[numberOfDirections];
 
             for (MapCardinalPoints direction : MapCardinalPoints.values()) {
                 if (direction == MapCardinalPoints.NORTH) {
                     int newY = robot.getY() + 1;
 
                     if (robot.checkIfOutOfBounds(robot.getX(), newY)) {
-                        probabilities[MapCardinalPoints.NORTH.ordinal()] = map.getMapCell(robot.getX(), newY).calculateSumProbability();
+                        probabilities[MapCardinalPoints.NORTH.ordinal()]
+                                =
+                                map.getMapCell(robot.getX(), newY).calculateSumProbability();
                     } else {
                         probabilities[MapCardinalPoints.NORTH.ordinal()] = Integer.MAX_VALUE;
                     }
@@ -45,7 +55,9 @@ public class moveRobot implements CommandInterface {
                     int newX = robot.getX() + 1;
 
                     if (robot.checkIfOutOfBounds(newX, robot.getY())) {
-                        probabilities[MapCardinalPoints.EAST.ordinal()] = map.getMapCell(newX, robot.getY()).calculateSumProbability();
+                        probabilities[MapCardinalPoints.EAST.ordinal()]
+                                =
+                                map.getMapCell(newX, robot.getY()).calculateSumProbability();
                     } else {
                         probabilities[MapCardinalPoints.EAST.ordinal()] = Integer.MAX_VALUE;
                     }
@@ -55,7 +67,9 @@ public class moveRobot implements CommandInterface {
                     int newY = robot.getY() - 1;
 
                     if (robot.checkIfOutOfBounds(robot.getX(), newY)) {
-                        probabilities[MapCardinalPoints.SOUTH.ordinal()] = map.getMapCell(robot.getX(), newY).calculateSumProbability();
+                        probabilities[MapCardinalPoints.SOUTH.ordinal()]
+                                =
+                                map.getMapCell(robot.getX(), newY).calculateSumProbability();
                     } else {
                         probabilities[MapCardinalPoints.SOUTH.ordinal()] = Integer.MAX_VALUE;
                     }
@@ -65,7 +79,9 @@ public class moveRobot implements CommandInterface {
                     int newX = robot.getX() - 1;
 
                     if (robot.checkIfOutOfBounds(newX, robot.getY())) {
-                        probabilities[MapCardinalPoints.WEST.ordinal()] = map.getMapCell(newX, robot.getY()).calculateSumProbability();
+                        probabilities[MapCardinalPoints.WEST.ordinal()]
+                                =
+                                map.getMapCell(newX, robot.getY()).calculateSumProbability();
                     } else {
                         probabilities[MapCardinalPoints.WEST.ordinal()] = Integer.MAX_VALUE;
                     }
@@ -103,7 +119,14 @@ public class moveRobot implements CommandInterface {
 
                 robot.setEnergy(robot.getEnergy() - probabilities[index]);
 
-                result.put("message", "The robot has successfully moved to position (" + robot.getX() + ", " + robot.getY() + ").");
+                result.put("message",
+                        "The robot has successfully moved to position ("
+                                +
+                                robot.getX()
+                                +
+                                ", "
+                                +
+                                robot.getY() + ").");
             } else {
                 result.put("message", "ERROR: Not enough battery left. Cannot perform action");
             }

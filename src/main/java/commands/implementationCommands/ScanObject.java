@@ -1,16 +1,24 @@
 package commands.implementationCommands;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import commands.Commands;
 import commands.CommandInterface;
 import map.Map;
 import robot.Robot;
 import fileio.CommandInput;
 
-public class scanObject implements CommandInterface {
+public class ScanObject implements CommandInterface {
+    private final int energyCostForScanObject = 7;
+
+    /**
+     *The scanned object is added to the robot's inventory and in the database inventory.
+     * After an object is scanned, the interactions start to happen with that object
+     * also the scanned animal starts to move and eat the plants, other animals if carnivore
+     * or parasite and drinks water.
+     */
+
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
+    public void execute(final Robot robot, final Map map, final ArrayNode output,
+                        final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
 
         result.put("command", "scanObject");
@@ -19,35 +27,42 @@ public class scanObject implements CommandInterface {
             result.put("message", "ERROR: Simulation not started. Cannot perform action");
         } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
             result.put("message", "ERROR: Robot still charging. Cannot perform action");
-        } else if (robot.getEnergy() - 7 < 0) {
+        } else if (robot.getEnergy() - energyCostForScanObject < 0) {
             result.put("message", "ERROR: Not enough battery left. Cannot perform action");
         } else {
 
-            if (command.getColor().equals("none") && command.getSmell().equals("none") && command.getSound().equals("none")) {
+            if (command.getColor().equals("none") && command.getSmell().equals("none")
+                    &&
+                    command.getSound().equals("none")) {
                 if (map.getMapCell(robot.getX(), robot.getY()).getWater() != null) {
                     map.getMapCell(robot.getX(), robot.getY()).getWater().setScannedByRobot(true);
                     map.getMapCell(robot.getX(), robot.getY()).getWater().setX(robot.getX());
                     map.getMapCell(robot.getX(), robot.getY()).getWater().setY(robot.getY());
-                    map.getMapCell(robot.getX(), robot.getY()).getWater().setTimestampAtWhichItWasScanned(command.getTimestamp());
+                    map.getMapCell(robot.getX(),
+                            robot.getY()).getWater().
+                            setTimestampAtWhichItWasScanned(command.getTimestamp());
                     robot.getInventory().add(map.getMapCell(robot.getX(), robot.getY()).getWater());
                     robot.getDatabaseInventory().add(map.getMapCell(robot.getX(), robot.getY()).getWater());
 
                     result.put("message", "The scanned object is water.");
-                    robot.setEnergy(robot.getEnergy() - 7);
+                    robot.setEnergy(robot.getEnergy() - energyCostForScanObject);
 
                 } else {
                     result.put("message", "ERROR: Object not found. Cannot perform action");
                 }
             } else if (command.getSound().equals("none")) {
-                if(map.getMapCell(robot.getX(), robot.getY()).getPlant() != null) {
+                if (map.getMapCell(robot.getX(), robot.getY()).getPlant() != null) {
                     map.getMapCell(robot.getX(), robot.getY()).getPlant().setScannedByRobot(true);
                     map.getMapCell(robot.getX(), robot.getY()).getPlant().setX(robot.getX());
                     map.getMapCell(robot.getX(), robot.getY()).getPlant().setY(robot.getY());
-                    map.getMapCell(robot.getX(), robot.getY()).getPlant().setTimestampAtWhichItWasScanned(command.getTimestamp());
+                    map.getMapCell(robot.getX(),
+                            robot.getY()).getPlant().
+                            setTimestampAtWhichItWasScanned(command.getTimestamp());
                     robot.getInventory().add(map.getMapCell(robot.getX(), robot.getY()).getPlant());
-                    robot.getDatabaseInventory().add(map.getMapCell(robot.getX(), robot.getY()).getPlant());
+                    robot.getDatabaseInventory().add(map.getMapCell(robot.getX(),
+                            robot.getY()).getPlant());
                     result.put("message", "The scanned object is a plant.");
-                    robot.setEnergy(robot.getEnergy() - 7);
+                    robot.setEnergy(robot.getEnergy() - energyCostForScanObject);
 
                 } else {
                     result.put("message", "ERROR: Object not found. Cannot perform action");
@@ -57,11 +72,15 @@ public class scanObject implements CommandInterface {
                     map.getMapCell(robot.getX(), robot.getY()).getAnimal().setScannedByRobot(true);
                     map.getMapCell(robot.getX(), robot.getY()).getAnimal().setX(robot.getX());
                     map.getMapCell(robot.getX(), robot.getY()).getAnimal().setY(robot.getY());
-                    map.getMapCell(robot.getX(), robot.getY()).getAnimal().setTimestampAtWhichItWasScanned(command.getTimestamp());
-                    robot.getInventory().add(map.getMapCell(robot.getX(), robot.getY()).getAnimal());
-                    robot.getDatabaseInventory().add(map.getMapCell(robot.getX(), robot.getY()).getAnimal());
+                    map.getMapCell(robot.getX(),
+                            robot.getY()).getAnimal().
+                            setTimestampAtWhichItWasScanned(command.getTimestamp());
+                    robot.getInventory().add(map.getMapCell(robot.getX(),
+                            robot.getY()).getAnimal());
+                    robot.getDatabaseInventory().add(map.getMapCell(robot.getX(),
+                            robot.getY()).getAnimal());
                     result.put("message", "The scanned object is an animal.");
-                    robot.setEnergy(robot.getEnergy() - 7);
+                    robot.setEnergy(robot.getEnergy() - energyCostForScanObject);
 
                 } else {
                     result.put("message", "ERROR: Object not found. Cannot perform action");

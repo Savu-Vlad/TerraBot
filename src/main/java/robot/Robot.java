@@ -1,16 +1,14 @@
 package robot;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import commands.implementationCommands.StartSimulation;
+import commands.implementationCommands.*;
+import entities.Air;
+import entities.Soil;
 import fileio.CommandInput;
 import map.Map;
 import entities.Entity;
-import java.util.List;
-
 import java.util.ArrayList;
 import lombok.Getter;
 import lombok.Setter;
-import commands.implementationCommands.*;
-import robot.KnowledgeBase;
 
 @Getter
 @Setter
@@ -24,16 +22,20 @@ public class Robot {
     private int y;
     private int timeAtWhichRechargingIsDone;
     private ArrayList<Entity> inventory = new ArrayList<>();
+    private final double zeroPointTree = 0.3;
 
     /**
-     * The databaseInventory is for the interactions to continue to happen if they are removed from the robot's main inventory.
-     * The entities are removed from the databaseInventory and the scanned objects are kept in inventory.
+     * The databaseInventory is for the interactions to continue
+     * to happen if they are removed from the robot's main inventory.
+     * The entities are removed from the databaseInventory and
+     * the scanned objects are kept in inventory.
      * For the interactions to still happen.
      * */
 
     private ArrayList<Entity> databaseInventory = new ArrayList<>();
     private ArrayList<KnowledgeBase> knowledgeBase = new ArrayList<>();
-    public Robot(int energy, Map map, ArrayList<CommandInput> commands, int x, int y) {
+    public Robot(final int energy, final Map map,
+                 final ArrayList<CommandInput> commands, final int x, final int y) {
         this.commands = commands;
         this.map = map;
         this.x = x;
@@ -42,62 +44,105 @@ public class Robot {
         this.timeAtWhichRechargingIsDone = -1;
     }
 
-    public boolean checkIfOutOfBounds(int xToMoveRobot, int yToMoveRobot) {
-        return xToMoveRobot >= 0 && xToMoveRobot < map.getRowLength() && yToMoveRobot >= 0 && yToMoveRobot < map.getColumnLength();
+    /**
+     * Method that checks if the robot is out of bounds
+     * when the moveRobot command is called.
+     * */
+
+    public boolean checkIfOutOfBounds(final int xToMoveRobot, final int yToMoveRobot) {
+        return xToMoveRobot >= 0 && xToMoveRobot < map.getRowLength()
+                &&
+                yToMoveRobot >= 0 && yToMoveRobot < map.getColumnLength();
     }
 
-    //in loc de string command name as putea sa dau ca parametru command input direct si sa mi iau parametrii de acolo!!!
-    public void executeCommand(String commandName, Map map, ArrayNode output, int timestamp, CommandInput command) {
-        map.setMapTimestamp(timestamp);
-        map.updateMapWithScan(this, map, timestamp);
+    /**
+     * Method that removes an item from the databaseInventory after
+     * being "used" to improve the environment.
+     * */
+
+    public void removeItemFromDataBaseInventory(final String itemName, final String itemType) {
+        for (int i = 0; i < databaseInventory.size(); i++) {
+            if (databaseInventory.get(i).getName().equals(itemName)
+                    &&
+                    databaseInventory.get(i).getType().equals(itemType)) {
+                databaseInventory.remove(i);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Method that improves the iar quality.
+     * */
+    public void improveAirByPlantingPlant(final Map map,
+                                          final String plantName, final String plantType) {
+        Map.MapCell cellToBeImproved = map.getMapCell(this.x, this.y);
+        Air entityToBeImproved = cellToBeImproved.getAir();
+        entityToBeImproved.setOxygenLevel(entityToBeImproved.getOxygenLevel() + zeroPointTree);
+        entityToBeImproved.setAirQuality(entityToBeImproved.calculateAirQuality());
+        removeItemFromDataBaseInventory(plantName, plantType);
+    }
+
+    /**
+     * Method that improves the soil quality.
+     * */
+    public void improveSoilByAddingWaterBody(final Map map,
+                                             final String waterBodyName,
+                                             final String waterBodyType) {
+        Map.MapCell cellToBeImproved = map.getMapCell(this.x, this.y);
+        Soil entityToBeImproved = cellToBeImproved.getSoil();
+        entityToBeImproved.setWaterRetention(entityToBeImproved.getWaterRetention()
+                + zeroPointTree);
+        entityToBeImproved.setSoilQuality(entityToBeImproved.calculateSoilQuality());
+        entityToBeImproved.setSoilQualityIndicator();
+        removeItemFromDataBaseInventory(waterBodyName, waterBodyType);
+    }
+
+    /**
+     *Primary method that executes the commands based on their name.
+     * This is trying to follow the Command design pattern.
+     */
+    public void executeCommand(final String commandName, final Map map,
+                               final ArrayNode output, final int timestamp,
+                               final CommandInput command) {
+        this.map.setMapTimestamp(timestamp);
+        this.map.updateMapWithScan(this, timestamp);
         switch (commandName) {
             case "startSimulation" -> {
                 new StartSimulation().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
             }
             case "endSimulation" -> {
-                new endSimulation().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new EndSimulation().execute(this, map, output, timestamp, command);
             }
             case "printEnvConditions" -> {
-                new printEnvConditions().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new PrintEnvConditions().execute(this, map, output, timestamp, command);
             }
             case "printMap" -> {
-                new printMap().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new PrintMap().execute(this, map, output, timestamp, command);
             }
-            case "moveRobot" ->{
-                new moveRobot().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+            case "moveRobot" -> {
+                new MoveRobot().execute(this, map, output, timestamp, command);
             }
             case "getEnergyStatus" -> {
-                new getEnergyStatus().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new GetEnergyStatus().execute(this, map, output, timestamp, command);
             }
             case "rechargeBattery" -> {
-                new rechargeBattery().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new RechargeBattery().execute(this, map, output, timestamp, command);
             }
             case "changeWeatherConditions" -> {
-                new changeWeatherConditions().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new ChangeWeatherConditions().execute(this, map, output, timestamp, command);
             }
             case "scanObject" -> {
-                new scanObject().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new ScanObject().execute(this, map, output, timestamp, command);
             }
             case "learnFact" -> {
-                new learnFact().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new LearnFact().execute(this, map, output, timestamp, command);
             }
             case "printKnowledgeBase" -> {
-                new printKnowledgeBase().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new PrintKnowledgeBase().execute(this, map, output, timestamp, command);
             }
             case "improveEnvironment" -> {
-                new improveEnvironment().execute(this, map, output, timestamp, command);
-                map.updateMapWithoutScan(timestamp);
+                new ImproveEnvironment().execute(this, map, output, timestamp, command);
             }
         }
     }

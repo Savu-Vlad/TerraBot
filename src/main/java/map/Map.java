@@ -13,11 +13,21 @@ public class Map {
     private int mapTimestamp;
     private MapCell[][] grid;
 
-    public MapCell getMapCell(int x, int y) {
+    /**
+     * Returns the MapCell from the coordinates passed as parameters.
+    * */
+
+    public MapCell getMapCell(final int x, final int y) {
         return grid[x][y];
     }
 
-    public void updateMapWithChangeWeatherCondition(CommandInput command) {
+    /**
+     * Method that updates the weather conditions.
+     * The changeWeatherCondition is an abstract method from Air.
+     * Implemented in all Air subclasses.
+    * */
+
+    public void updateMapWithChangeWeatherCondition(final CommandInput command) {
         for (int i = 0; i < rowLength; i++) {
             for (int j = 0; j < columnLength; j++) {
                 if (grid[i][j].getAir() != null) {
@@ -27,40 +37,43 @@ public class Map {
         }
     }
 
-    //aici o sa am robotul si o sa actualizez tot ceea ce este in inventarul robotului
-    public void updateMapWithScan(Robot robot, Map map, int timestamp) {
+    /**
+     * Method that makes the interactions between the scanned objects.
+     * It goes through the entire map and checks for scanned objects.
+     */
+    public void updateMapWithScan(final Robot robot, final int timestamp) {
         if (robot.getInventory().isEmpty()) {
             return;
         }
-        //sa verific daca e egal timestamp ul de la care s a primit scan object cu cel curent !
-        for (Entity entity : robot.getInventory()) {
-            entity.updateMapWithScannedObject(map, grid[entity.getX()][entity.getY()], timestamp) ;
+        for (int i = 0; i < rowLength; i++) {
+            for (int j = 0; j < columnLength; j++) {
+                if (grid[i][j].getWater() != null && grid[i][j].getWater().isScannedByRobot()) {
+                    Water water = grid[i][j].getWater();
+                    water.updateMapWithScannedObject(robot, this, grid[i][j], timestamp);
+                }
+                if (grid[i][j].getPlant() != null && grid[i][j].getPlant().isScannedByRobot()) {
+                    Plant plant = grid[i][j].getPlant();
+                    plant.updateMapWithScannedObject(robot, this, grid[i][j], timestamp);
+                }
+                if (grid[i][j].getAnimal() != null && grid[i][j].getAnimal().isScannedByRobot()) {
+                    Animal animal = grid[i][j].getAnimal();
+                    animal.updateMapWithScannedObject(robot, this, grid[i][j], timestamp);
+                }
+            }
         }
-    }
 
-    public void updateMapWithoutScan(int timestamp) {
-        int differenceBetweenTimestamps = timestamp - mapTimestamp;
-//        //sa fac un fel de if 2 iterations has passed!!!
-//        if (mapTimestamp % 2 != 0 && mapTimestamp != 1) {
-//            for (int i = 0; i < rowLength; i++) {
-//                for (int j = 0; j < columnLength; j++) {
-//                    if (grid[i][j].getAir() != null) {
-//                        grid[i][j].getAir().increaseAirHumidity(this, i, j);
-//                    }
-//
-//                    //need to also add for the soil !
-//                    if (grid[i][j].getSoil() != null) {
-//                        grid[i][j].getSoil().increaseSoilWaterRetention(this, i, j);
-//                    }
-//                }
-//            }
-//        }
-
+        for (int i = 0; i < rowLength; i++) {
+            for (int j = 0; j < columnLength; j++) {
+                if (grid[i][j].getAnimal() != null && grid[i][j].getAnimal().isScannedByRobot()) {
+                    grid[i][j].getAnimal().setProcessedForThisTimestamp(false);
+                }
+            }
+        }
     }
 
     @Getter
     @Setter
-    public static class MapCell {
+    public static final class MapCell {
         private Animal animal;
         private Plant plant;
         @Setter
@@ -70,6 +83,10 @@ public class Map {
         private Air air;
         private int entitiesCount;
 
+        /**
+         * Method that calculates the sum probability of all entities
+         * that have a chance to damage/attack the robot.
+         */
         public int calculateSumProbability() {
             double sum = 0.0;
             int countForProbabilities = 0;
@@ -96,26 +113,47 @@ public class Map {
 
             double mean = Math.abs(sum / countForProbabilities);
 
-            return (int)Math.round(mean);
+            return (int) Math.round(mean);
         }
 
-        public void setAnimal(Animal animal) {
+        /**
+         * Setter method for Animal that also increases the entitiesCount
+         * */
+        public void setAnimal(final Animal animal) {
             this.animal = animal;
-            this.entitiesCount++;
+            if (animal != null) {
+                this.entitiesCount++;
+            } else {
+                this.entitiesCount--;
+            }
         }
 
-        public void setPlant(Plant plant) {
+        /**
+         * Setter method for Plant that also increases the entitiesCount
+         * */
+        public void setPlant(final Plant plant) {
             this.plant = plant;
-            this.entitiesCount++;
+            if (plant != null) {
+                this.entitiesCount++;
+            } else {
+                this.entitiesCount--;
+            }
         }
 
-        public void setWater(Water water) {
+        /**
+         * Setter method for Water that also increases the entitiesCount
+         * */
+        public void setWater(final Water water) {
             this.water = water;
-            this.entitiesCount++;
+            if (water != null) {
+                this.entitiesCount++;
+            } else {
+                this.entitiesCount--;
+            }
         }
     }
 
-    public Map(int rowLength, int columnLength) {
+    public Map(final int rowLength, final int columnLength) {
         this.rowLength = rowLength;
         this.columnLength = columnLength;
         this.grid = new MapCell[rowLength][columnLength];

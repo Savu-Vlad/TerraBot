@@ -6,20 +6,26 @@ import fileio.CommandInput;
 import map.Map;
 import robot.Robot;
 
-public class changeWeatherConditions implements CommandInterface {
+public class GetEnergyStatus implements CommandInterface {
+
+    /**
+     * Method that returns the energy of the robot and writes in the outputs
+     * the aftermath of the command execution.
+     * */
+
     @Override
-    public void execute(Robot robot, Map map, ArrayNode output, int timestamp, CommandInput command) {
+    public void execute(final Robot robot, final Map map, final ArrayNode output,
+                        final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
 
-        result.put("command", "changeWeatherConditions");
+        result.put("command", "getEnergyStatus");
 
         if (!robot.isSimulationStarted()) {
             result.put("message", "ERROR: Simulation not started. Cannot perform action");
         } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
             result.put("message", "ERROR: Robot still charging. Cannot perform action");
         } else {
-            map.updateMapWithChangeWeatherCondition(command);
-            result.put("message", "The weather has changed.");
+            result.put("message", "TerraBot has " + robot.getEnergy() + " energy points left.");
         }
 
         result.put("timestamp", timestamp);
