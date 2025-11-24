@@ -93,6 +93,16 @@ public abstract class Entity {
     protected final int seventyFive = 75;
     @JsonIgnore
     protected final int fifty = 50;
+    @JsonIgnore
+    protected final double tenPointZero = 10.0;
+    @JsonIgnore
+    protected final int three = 3;
+    @JsonIgnore
+    protected final int four = 4;
+    @JsonIgnore
+    protected final int sixty = 60;
+    @JsonIgnore
+    protected final int eightyFive = 85;
 
 
     public Entity() {

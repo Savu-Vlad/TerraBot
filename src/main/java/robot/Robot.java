@@ -106,6 +106,7 @@ public class Robot {
                                final ArrayNode output, final int timestamp,
                                final CommandInput command) {
         this.map.setMapTimestamp(timestamp);
+        //aparent se poate da sout println si printeaza la testul de la output !!!
         this.map.updateMapWithScan(this, timestamp);
         switch (commandName) {
             case "startSimulation" -> {

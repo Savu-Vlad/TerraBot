@@ -45,6 +45,10 @@ public class Map {
         if (robot.getInventory().isEmpty()) {
             return;
         }
+//        for (Entity entity : robot.getInventory()) {
+//            entity.updateMapWithScannedObject(robot, this, grid[entity.getX()][entity.getY()], timestamp);
+//        }
+
         for (int i = 0; i < rowLength; i++) {
             for (int j = 0; j < columnLength; j++) {
                 if (grid[i][j].getWater() != null && grid[i][j].getWater().isScannedByRobot()) {
@@ -165,3 +169,4 @@ public class Map {
         }
     }
 }
+//pentru multiple simulations iau getlast cred ? !!

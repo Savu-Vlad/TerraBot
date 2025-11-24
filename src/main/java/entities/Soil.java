@@ -38,7 +38,14 @@ public abstract class Soil extends Entity {
 
     }
 
+
+    /**
+     * The quality is calculated differently for each soil type
+     * */
     public abstract double calculateSoilQuality();
+    /**
+     * The possibility to get stuck is calculated differently for each soil type
+     * */
     public abstract double calculatePossibilityToGetStuckInSoil();
 
     public void setSoilQualityIndicator() {
@@ -62,6 +69,9 @@ class ForestSoil extends Soil {
         setSoilQualityIndicator();
     }
 
+    /**
+     * Method that calculates the soil quality based on formula
+     * */
     @Override
     public double calculateSoilQuality() {
         double forestQualityScore
@@ -77,11 +87,14 @@ class ForestSoil extends Soil {
         return roundScore(normalizedQualityScore);
     }
 
+    /**
+     * Method to calculate possibility to get stuck in soil
+     * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
         return (waterRetention * zeroPointSix + leafLitter * zeroPointFour)
                 /
-                80 * oneHundred;
+                eighty * oneHundred;
     }
 }
 @Getter
@@ -98,6 +111,9 @@ class SwampSoil extends Soil {
         setSoilQualityIndicator();
     }
 
+    /**
+     * Method that calculates the soil quality based on formula
+     * */
     @Override
     public double calculateSoilQuality() {
         double SwampQualityScore = (nitrogen * onePointOne)
@@ -107,6 +123,9 @@ class SwampSoil extends Soil {
         return roundScore(normalizedQualityScore);
     }
 
+    /**
+     * Method to calculate possibility to get stuck in soil
+     * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
         return waterLogging * ten;
@@ -127,6 +146,9 @@ class DesertSoil extends Soil {
         setSoilQualityIndicator();
     }
 
+    /**
+     * Method that calculates the soil quality based on formula
+     * */
     @Override
     public double calculateSoilQuality() {
         double desertQualityScore = (nitrogen * zeroPointFive)
@@ -136,6 +158,9 @@ class DesertSoil extends Soil {
         return roundScore(normalizedQualityScore);
     }
 
+    /**
+     * Method to calculate possibility to get stuck in soil
+     * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
         return (oneHundred - waterRetention + salinity)
@@ -158,13 +183,19 @@ class GrasslandSoil extends Soil {
         setSoilQualityIndicator();
     }
 
+    /**
+     * Method that calculates the soil quality based on formula
+     * */
     @Override
     public double calculateSoilQuality() {
-        double grasslandQualityScore = (nitrogen * 1.3) + (organicMatter * onePointFive) + (rootDensity * 0.8);
+        double grasslandQualityScore = (nitrogen * 1.3) + (organicMatter * onePointFive) + (rootDensity * zeroPointEight);
         double normalizedQualityScore = normalizeScore(grasslandQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
+    /**
+     * Method to calculate possibility to get stuck in soil
+     * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
         return ((fifty - rootDensity) + waterRetention * zeroPointFive)
@@ -187,16 +218,24 @@ class TundraSoil extends Soil {
         setSoilQualityIndicator();
     }
 
+    /**
+     * Method that calculates the soil quality based on formula
+     * */
     @Override
     public double calculateSoilQuality() {
-        double tundraQualityScore = (nitrogen * 0.7) + (organicMatter * 0.5) - (permafrostDepth * 1.5);
+        double tundraQualityScore = (nitrogen * zeroPointSeven) + (organicMatter * zeroPointFive)
+                -
+                (permafrostDepth * onePointFive);
         double normalizedQualityScore = normalizeScore(tundraQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
+    /**
+     * Method to calculate possibility to get stuck in soil
+     * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
-        return (50 - permafrostDepth) / 50 * oneHundred;
+        return (fifty - permafrostDepth) / fifty * oneHundred;
     }
 }
 
