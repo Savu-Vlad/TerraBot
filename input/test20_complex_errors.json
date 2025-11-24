@@ -424,10 +424,6 @@
       "timestamp": 22
     },
     {
-      "command": "getEnergyStatus",
-      "timestamp": 5
-    },
-    {
       "command": "moveRobot",
       "timestamp": 23
     },

@@ -87,10 +87,6 @@
   "message" : "ERROR: Not enough energy to perform action",
   "timestamp" : 22
 }, {
-  "command" : "getEnergyStatus",
-  "message" : "TerraBot has 3 energy points left.",
-  "timestamp" : 5
-}, {
   "command" : "moveRobot",
   "message" : "The robot has successfully moved to position (0, 1).",
   "timestamp" : 23

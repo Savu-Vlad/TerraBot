@@ -92,103 +92,103 @@
           }
         ],
         "plants": [
-            {
-              "type": "FloweringPlants",
-              "name": "Rose",
-              "mass": 0.7,
-              "sections": [
-                { "x": 0, "y": 1 },
-                { "x": 1, "y": 2 },
-                { "x": 2, "y": 3 },
-                { "x": 2, "y": 0 },
-                { "x": 2, "y": 1 }
-              ]
-            },
-            {
-              "type": "Ferns",
-              "name": "MaidenhairFern",
-              "mass": 0.8,
-              "sections": [
-                { "x": 0, "y": 0 }
-              ]
-            },
-            {
-              "type": "GymnospermsPlants",
-              "name": "ScotsPine",
-              "mass": 3.8,
-              "sections": [
-                { "x": 4, "y": 4 }
-              ]
-            },
-            {
-              "type": "Algae",
-              "name": "Spirogyra",
-              "mass": 0.3,
-              "sections": [
-                { "x": 0, "y": 2 },
-                { "x": 1, "y": 3 },
-                { "x": 1, "y": 1 }
-              ]
-            },
-            {
-              "type": "Mosses",
-              "name": "SphagnumMoss",
-              "mass": 0.25,
-              "sections": [
-                { "x": 2, "y": 4 },
-                { "x": 3, "y": 4 }
-              ]
-            }
+          {
+            "type": "FloweringPlants",
+            "name": "Rose",
+            "mass": 0.7,
+            "sections": [
+              { "x": 0, "y": 1 },
+              { "x": 1, "y": 2 },
+              { "x": 2, "y": 3 },
+              { "x": 2, "y": 0 },
+              { "x": 2, "y": 1 }
+            ]
+          },
+          {
+            "type": "Ferns",
+            "name": "MaidenhairFern",
+            "mass": 0.8,
+            "sections": [
+              { "x": 0, "y": 0 }
+            ]
+          },
+          {
+            "type": "GymnospermsPlants",
+            "name": "ScotsPine",
+            "mass": 3.8,
+            "sections": [
+              { "x": 4, "y": 4 }
+            ]
+          },
+          {
+            "type": "Algae",
+            "name": "Spirogyra",
+            "mass": 0.3,
+            "sections": [
+              { "x": 0, "y": 2 },
+              { "x": 1, "y": 3 },
+              { "x": 1, "y": 1 }
+            ]
+          },
+          {
+            "type": "Mosses",
+            "name": "SphagnumMoss",
+            "mass": 0.25,
+            "sections": [
+              { "x": 2, "y": 4 },
+              { "x": 3, "y": 4 }
+            ]
+          }
 
-          ],
-            "animals": [
-              {
-                "type": "Herbivores",
-                "name": "Deer",
-                "mass": 110,
-                "sections": [
-                  { "x": 0, "y": 0 },
-                  { "x": 1, "y": 0 }
-                ]
-              },
-              {
-                "type": "Carnivores",
-                "name": "Wolf",
-                "mass": 40,
-                "sections": [
-                  { "x": 3, "y": 4 },
-                  { "x": 1, "y": 1 }
-                ]
-              },
-              {
-                "type": "Omnivores",
-                "name": "Fox",
-                "mass": 8,
-                "sections": [
-                  { "x": 4, "y": 2 }
-                ]
-              },
-              {
-                "type": "Detritivores",
-                "name": "Earthworm",
-                "mass": 0.05,
-                "sections": [
-                  { "x": 0, "y": 3 },
-                  { "x": 1, "y": 3 },
-                  { "x": 2, "y": 0 },
-                  { "x": 2, "y": 1 }
-                ]
-              },
-              {
-                "type": "Parasites",
-                "name": "Flea",
-                "mass": 0.001,
-                "sections": [
-                  { "x": 4, "y": 3 },
-                  { "x": 4, "y": 4 }
-                ]
-              }
-            ],
+        ],
+        "animals": [
+          {
+            "type": "Herbivores",
+            "name": "Deer",
+            "mass": 110,
+            "sections": [
+              { "x": 0, "y": 0 },
+              { "x": 1, "y": 0 }
+            ]
+          },
+          {
+            "type": "Carnivores",
+            "name": "Wolf",
+            "mass": 40,
+            "sections": [
+              { "x": 3, "y": 4 },
+              { "x": 1, "y": 1 }
+            ]
+          },
+          {
+            "type": "Omnivores",
+            "name": "Fox",
+            "mass": 8,
+            "sections": [
+              { "x": 4, "y": 2 }
+            ]
+          },
+          {
+            "type": "Detritivores",
+            "name": "Earthworm",
+            "mass": 0.25,
+            "sections": [
+              { "x": 0, "y": 3 },
+              { "x": 1, "y": 3 },
+              { "x": 2, "y": 0 },
+              { "x": 2, "y": 1 }
+            ]
+          },
+          {
+            "type": "Parasites",
+            "name": "Flea",
+            "mass": 0.1,
+            "sections": [
+              { "x": 4, "y": 3 },
+              { "x": 4, "y": 4 }
+            ]
+          }
+        ],
         "water": [
           {
             "type": "pond",
