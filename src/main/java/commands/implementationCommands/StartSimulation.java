@@ -12,7 +12,6 @@ public class StartSimulation implements CommandInterface {
      * Starts the simulation by setting the field in the robot to true
      * and writes in the output the result of the command execution.
      * */
-
     @Override
     public void execute(final Robot robot, final Map map, final ArrayNode output,
                         final int timestamp, final CommandInput command) {
@@ -21,7 +20,7 @@ public class StartSimulation implements CommandInterface {
         result.put("command", "startSimulation");
 
         if (robot.isSimulationStarted()) {
-            result.put("error", "ERROR: Simulation already started. Cannot perform action");
+            result.put("message", "ERROR: Simulation already started. Cannot perform action");
         } else {
             robot.setSimulationStarted(true);
             result.put("message", "Simulation has started.");

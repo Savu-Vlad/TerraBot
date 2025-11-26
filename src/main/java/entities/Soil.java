@@ -2,8 +2,6 @@ package entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import map.Map;
-import robot.Robot;
 
 @Getter
 @Setter
@@ -17,6 +15,62 @@ public abstract class Soil extends Entity {
     protected double possibilityToGetStuckInSoil;
     @JsonIgnore
     protected String soilQualityIndicator;
+    @JsonIgnore
+    protected final double forestSoilQualityNitrogenBase = 1.2;
+    @JsonIgnore
+    protected final double forestSoilQualityOrganicMatterBase = 2.0;
+    @JsonIgnore
+    protected final double forestSoilQualityWaterRetentionBase = 1.5;
+    @JsonIgnore
+    protected final double forestSoilQualityLeafLitterBase = 0.3;
+    @JsonIgnore
+    protected final double forestSoilStuckWaterRetentionBase = 0.6;
+    @JsonIgnore
+    protected final double forestSoilStuckLeafLitterBase = 0.4;
+    @JsonIgnore
+    protected final double forestSoilStuckDivisor = 80.0;
+    @JsonIgnore
+    protected final double swampSoilQualityNitrogenBase = 1.1;
+    @JsonIgnore
+    protected final double swampSoilQualityOrganicMatterBase = 2.2;
+    @JsonIgnore
+    protected final double swampSoilQualityWaterLoggingBase = 5.0;
+    @JsonIgnore
+    protected final double swampSoilStuckWaterLoggingBase = 10.0;
+    @JsonIgnore
+    protected final double desertSoilQualityNitrogenBase = 0.5;
+    @JsonIgnore
+    protected final double desertSoilQualityWaterRetentionBase = 0.3;
+    @JsonIgnore
+    protected final double desertSoilQualitySalinityBase = 2.0;
+    @JsonIgnore
+    protected final double grasslandSoilQualityNitrogenBase = 1.3;
+    @JsonIgnore
+    protected final double grasslandSoilQualityOrganicMatterBase = 1.5;
+    @JsonIgnore
+    protected final double grasslandSoilQualityRootDensityBase = 0.8;
+    @JsonIgnore
+    protected final double grasslandSoilStuckRootDensityBase = 50.0;
+    @JsonIgnore
+    protected final double grasslandSoilStuckWaterRetentionBase = 0.5;
+    @JsonIgnore
+    protected final double grasslandSoilStuckDivisor = 75.0;
+    @JsonIgnore
+    protected final double tundraSoilQualityNitrogenBase = 0.7;
+    @JsonIgnore
+    protected final double tundraSoilQualityOrganicMatterBase = 0.5;
+    @JsonIgnore
+    protected final double tundraSoilQualityPermafrostBase = 1.5;
+    @JsonIgnore
+    protected final double tundraSoilStuckPermafrostDivisor = 50.0;
+    @JsonIgnore
+    protected final int oneHundredDivisor = 100;
+    @JsonIgnore
+    protected final double oneHundredPointZeroDivisor = 100.0;
+    @JsonIgnore
+    protected final int oneHundred = 100;
+    @JsonIgnore
+    protected final int fifty = 50;
 
     public Soil() {
 
@@ -32,13 +86,6 @@ public abstract class Soil extends Entity {
         this.organicMatter = organicMatter;
     }
 
-    @Override
-    public void updateMapWithScannedObject(final Robot robot, final Map map,
-                                           final Map.MapCell cell, final int timestamp) {
-
-    }
-
-
     /**
      * The quality is calculated differently for each soil type
      * */
@@ -48,6 +95,13 @@ public abstract class Soil extends Entity {
      * */
     public abstract double calculatePossibilityToGetStuckInSoil();
 
+
+    /**
+     * Method that sets the air quality indicator based on the boundaries in the QualityLevel enum
+     * 0-40 -> poor
+     * 40-70 -> moderate
+     * 70-100 -> good
+     * */
     public void setSoilQualityIndicator() {
         double quality = calculateSoilQuality();
         this.soilQualityIndicator = QualityLevel.fromScore(quality).getIdentifier();
@@ -76,13 +130,13 @@ class ForestSoil extends Soil {
     public double calculateSoilQuality() {
         double forestQualityScore
                 =
-                (nitrogen * onePointTwo)
+                (nitrogen * forestSoilQualityNitrogenBase)
                         +
-                        (organicMatter * two)
+                        (organicMatter * forestSoilQualityOrganicMatterBase)
                         +
-                        (waterRetention * onePointFive)
+                        (waterRetention * forestSoilQualityWaterRetentionBase)
                         +
-                        (leafLitter * zeroPointThree);
+                        (leafLitter * forestSoilQualityLeafLitterBase);
         double normalizedQualityScore = normalizeScore(forestQualityScore);
         return roundScore(normalizedQualityScore);
     }
@@ -92,9 +146,11 @@ class ForestSoil extends Soil {
      * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
-        return (waterRetention * zeroPointSix + leafLitter * zeroPointFour)
+        return (waterRetention * forestSoilStuckWaterRetentionBase
+                +
+                leafLitter * forestSoilStuckLeafLitterBase)
                 /
-                eighty * oneHundred;
+                forestSoilStuckDivisor * oneHundredDivisor;
     }
 }
 @Getter
@@ -102,7 +158,7 @@ class ForestSoil extends Soil {
 class SwampSoil extends Soil {
     private final double waterLogging;
 
-    SwampSoil(final String name , final double mass,
+    SwampSoil(final String name, final double mass,
                      final double nitrogen, final double waterRetention,
                      final double soilpH, final double organicMatter, final double waterLogging) {
         super(name, mass, nitrogen, waterRetention, soilpH, organicMatter, "SwampSoil");
@@ -116,10 +172,12 @@ class SwampSoil extends Soil {
      * */
     @Override
     public double calculateSoilQuality() {
-        double SwampQualityScore = (nitrogen * onePointOne)
+        double swampQualityScore = (nitrogen * swampSoilQualityNitrogenBase)
                 +
-                (organicMatter * twoPointTwo) - (waterLogging * five);
-        double normalizedQualityScore = normalizeScore(SwampQualityScore);
+                (organicMatter * swampSoilQualityOrganicMatterBase)
+                -
+                (waterLogging * swampSoilQualityWaterLoggingBase);
+        double normalizedQualityScore = normalizeScore(swampQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
@@ -128,7 +186,7 @@ class SwampSoil extends Soil {
      * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
-        return waterLogging * ten;
+        return waterLogging * swampSoilStuckWaterLoggingBase;
     }
 }
 
@@ -151,9 +209,11 @@ class DesertSoil extends Soil {
      * */
     @Override
     public double calculateSoilQuality() {
-        double desertQualityScore = (nitrogen * zeroPointFive)
+        double desertQualityScore = (nitrogen * desertSoilQualityNitrogenBase)
                 +
-                (waterRetention * zeroPointThree) - (salinity * two);
+                (waterRetention * desertSoilQualityWaterRetentionBase)
+                -
+                (salinity * desertSoilQualitySalinityBase);
         double normalizedQualityScore = normalizeScore(desertQualityScore);
         return roundScore(normalizedQualityScore);
     }
@@ -165,7 +225,7 @@ class DesertSoil extends Soil {
     public double calculatePossibilityToGetStuckInSoil() {
         return (oneHundred - waterRetention + salinity)
                 /
-                oneHundred * oneHundred;
+                oneHundredDivisor * oneHundredDivisor;
     }
 }
 
@@ -188,7 +248,11 @@ class GrasslandSoil extends Soil {
      * */
     @Override
     public double calculateSoilQuality() {
-        double grasslandQualityScore = (nitrogen * 1.3) + (organicMatter * onePointFive) + (rootDensity * zeroPointEight);
+        double grasslandQualityScore = (nitrogen * grasslandSoilQualityNitrogenBase)
+                +
+                (organicMatter * grasslandSoilQualityOrganicMatterBase)
+                +
+                (rootDensity * grasslandSoilQualityRootDensityBase);
         double normalizedQualityScore = normalizeScore(grasslandQualityScore);
         return roundScore(normalizedQualityScore);
     }
@@ -198,9 +262,11 @@ class GrasslandSoil extends Soil {
      * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
-        return ((fifty - rootDensity) + waterRetention * zeroPointFive)
+        return ((grasslandSoilStuckRootDensityBase - rootDensity)
+                +
+                waterRetention * grasslandSoilStuckWaterRetentionBase)
                 /
-                seventyFive * oneHundred;
+                grasslandSoilStuckDivisor * oneHundredDivisor;
     }
 }
 
@@ -223,9 +289,11 @@ class TundraSoil extends Soil {
      * */
     @Override
     public double calculateSoilQuality() {
-        double tundraQualityScore = (nitrogen * zeroPointSeven) + (organicMatter * zeroPointFive)
+        double tundraQualityScore = (nitrogen * tundraSoilQualityNitrogenBase)
+                +
+                (organicMatter * tundraSoilQualityOrganicMatterBase)
                 -
-                (permafrostDepth * onePointFive);
+                (permafrostDepth * tundraSoilQualityPermafrostBase);
         double normalizedQualityScore = normalizeScore(tundraQualityScore);
         return roundScore(normalizedQualityScore);
     }
@@ -235,7 +303,9 @@ class TundraSoil extends Soil {
      * */
     @Override
     public double calculatePossibilityToGetStuckInSoil() {
-        return (fifty - permafrostDepth) / fifty * oneHundred;
+        return (fifty - permafrostDepth)
+                /
+                tundraSoilStuckPermafrostDivisor * oneHundredDivisor;
     }
 }
 

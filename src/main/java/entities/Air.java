@@ -2,9 +2,7 @@ package entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
-import map.Map;
 import fileio.CommandInput;
-import robot.Robot;
 
 @Getter
 @Setter
@@ -21,12 +19,74 @@ public abstract class Air extends Entity {
     protected double possibilityToGetDamagedByAir;
     @JsonIgnore
     protected int maxScore;
+    @JsonIgnore
+    protected final int toxicityMultiplier = 100;
+    @JsonIgnore
+    protected final double humidityIncreaseRate = 0.1;
+    @JsonIgnore
+    protected final int tropicalAirMaxScore = 82;
+    @JsonIgnore
+    protected final int polarAirMaxScore = 142;
+    @JsonIgnore
+    protected final int temperateAirMaxScore = 84;
+    @JsonIgnore
+    protected final int desertAirMaxScore = 65;
+    @JsonIgnore
+    protected final int mountainAirMaxScore = 78;
+    @JsonIgnore
+    protected final int basicValueForChangeWeather = 0;
+    @JsonIgnore
+    protected final int desertStormValue = 30;
+    @JsonIgnore
+    protected final int springValue = 15;
+    @JsonIgnore
+    protected final int altitudeDivisor = 1000;
+    @JsonIgnore
+    protected final double altitudeMultiplier = 0.5;
+    @JsonIgnore
+    protected final int temperatureOneHundred = 100;
+    @JsonIgnore
+    protected final int tropicalAirOxygenMultiplier = 2;
+    @JsonIgnore
+    protected final double tropicalAirHumidityMultiplier = 0.5;
+    @JsonIgnore
+    protected final double tropicalAirCo2Multiplier = 0.01;
+    @JsonIgnore
+    protected final double tropicalAirRainfallMultiplier = 0.3;
+    @JsonIgnore
+    protected final int polarAirOxygenMultiplier = 2;
+    @JsonIgnore
+    protected final double polarAirTemperatureDifferenceMultiplier = 1.0;
+    @JsonIgnore
+    protected final double polarAirIceCrystalMultiplier = 0.05;
+    @JsonIgnore
+    protected final double polarAirWindSpeedMultiplier = 0.2;
+    @JsonIgnore
+    protected final int temperateAirOxygenMultiplier = 2;
+    @JsonIgnore
+    protected final double temperateAirHumidityMultiplier = 0.7;
+    @JsonIgnore
+    protected final double temperateAirPollenMultiplier = 0.1;
+    @JsonIgnore
+    protected final double temperateAirSeasonMultiplier = 1.0;
+    @JsonIgnore
+    protected final int desertAirOxygenMultiplier = 2;
+    @JsonIgnore
+    protected final double desertAirDustParticlesMultiplier = 0.2;
+    @JsonIgnore
+    protected final double desertAirTemperatureMultiplier = 0.3;
+    @JsonIgnore
+    protected final int mountainAirOxygenMultiplier = 2;
+    @JsonIgnore
+    protected final double mountainAirHumidityMultiplier = 0.6;
+    @JsonIgnore
+    protected final double mountainAirHikersMultiplier = 0.1;
 
     /**
      * Method that calculates the toxicity of the air based on that formula
      */
     public double calculateToxicityAQ(final double airQualityScore, final double maxScoreValue) {
-        return oneHundred * (1 - airQualityScore / maxScoreValue);
+        return toxicityMultiplier * (1 - airQualityScore / maxScoreValue);
     }
 
     /**
@@ -61,32 +121,10 @@ public abstract class Air extends Entity {
     }
 
     /**
-     * Method tht increases air humidity when water is in the map cell
-     * */
-
-    public void increaseAirHumidity(final Map map, final int x, final int y) {
-
-        if (map.getMapCell(x, y).getWater() != null) {
-
-            this.humidity += zeroPointOne;
-            this.airQuality = calculateAirQuality();
-            setAirQualityIndicator();
-            this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
-            this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
-        }
-    }
-
-    @Override
-    public void updateMapWithScannedObject(final Robot robot, final Map map,
-                                           final Map.MapCell cell, final int timestamp) {
-
-    }
-
-    /**
      * Method that changes weather conditions based on command input
      * it is overridden in each subclass of Air
      * */
-    public abstract void changeWeatherConditions(CommandInput command);
+    public abstract String changeWeatherConditions(CommandInput command);
 }
 
 @Getter
@@ -96,27 +134,31 @@ class TropicalAir extends Air {
     TropicalAir(final String name, final double mass, final double humidity,
                        final double temperature, final double oxygenLevel, final double co2Level) {
         super(name, mass, "TropicalAir", humidity, temperature, oxygenLevel);
-        this.co2Level = co2Level;
+        this.co2Level = roundScore(co2Level);
         setAirQualityIndicator();
-        this.maxScore = eightyTwo;
+        this.maxScore = tropicalAirMaxScore;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double tropicalAirQualityScore = (oxygenLevel * two)
+        double tropicalAirQualityScore = (oxygenLevel * tropicalAirOxygenMultiplier)
                 +
-                (humidity * zeroPointFive)
+                (humidity * tropicalAirHumidityMultiplier)
                 -
-                (co2Level * zeroPointZeroOne);
+                (co2Level * tropicalAirCo2Multiplier);
         double normalizedQualityScore = normalizeScore(tropicalAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(final CommandInput command) {
-        this.airQuality += (command.getRainfall() * zeroPointThree);
+    public String changeWeatherConditions(final CommandInput command) {
+        if (!command.getType().equals("rainfall")) {
+            return "ERROR: The weather change does not affect the environment. Cannot perform action";
+        }
+        this.airQuality += (command.getRainfall() * tropicalAirRainfallMultiplier);
+        return null;
     }
 }
 
@@ -129,7 +171,7 @@ class PolarAir extends Air {
              final double oxygenLevel, final double iceCrystalConcentration) {
         super(name, mass, "PolarAir", humidity, temperature, oxygenLevel);
         this.iceCrystalConcentration = iceCrystalConcentration;
-        this.maxScore = oneFortyTwo;
+        this.maxScore = polarAirMaxScore;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
         setAirQualityIndicator();
@@ -137,18 +179,22 @@ class PolarAir extends Air {
 
     @Override
     public double calculateAirQuality() {
-        double polarAirQualityScore = (oxygenLevel * two)
+        double polarAirQualityScore = (oxygenLevel * polarAirOxygenMultiplier)
                 +
-                (oneHundred - Math.abs(temperature))
+                (temperatureOneHundred - Math.abs(temperature))
                 -
-                (iceCrystalConcentration * zeroPointZeroFive);
+                (iceCrystalConcentration * polarAirIceCrystalMultiplier);
         double normalizedQualityScore = normalizeScore(polarAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(final CommandInput command) {
-        this.airQuality -= (command.getWindSpeed() * zeroPointTwo);
+    public String changeWeatherConditions(final CommandInput command) {
+        if (!command.getType().equals("polarStorm")) {
+            return "ERROR: The weather change does not affect the environment. Cannot perform action";
+        }
+        this.airQuality -= (command.getWindSpeed() * polarAirWindSpeedMultiplier);
+        return null;
     }
 }
 
@@ -162,36 +208,44 @@ class TemperateAir extends Air {
         super(name, mass, "TemperateAir", humidity, temperature, oxygenLevel);
         this.pollenLevel = pollenLevel;
         setAirQualityIndicator();
-        this.maxScore = eightyFour;
+        this.maxScore = temperateAirMaxScore;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double temperateAirQualityScore = (oxygenLevel * two)
+        double temperateAirQualityScore = (oxygenLevel * temperateAirOxygenMultiplier)
                 +
-                (humidity * zeroPointSeven)
+                (humidity * temperateAirHumidityMultiplier)
                 -
-                (pollenLevel * zeroPointOne);
+                (pollenLevel * temperateAirPollenMultiplier);
         double normalizedQualityScore = normalizeScore(temperateAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(final CommandInput command) {
+    public String changeWeatherConditions(final CommandInput command) {
         /* Check if the season is null and the method calls on a type of air that isn't TemperateAir
             * to avoid the program having a null pointer exception !!
             * should be ok for the other methods because all the data
             * in the json if not specified is 0 or false
             * so for the other methods it would just do air quality - 0 or + 0 so it is safe
          */
-        if (command.getSeason() == null) {
-            return;
+        if (command.getType().equals("newSeason")) {
+            return "ERROR: The weather change does not affect the environment. Cannot perform action";
         }
 
-        double seasonPenalty = command.getSeason().equalsIgnoreCase("Spring") ? fifteen : zero;
+        if (command.getSeason() == null) {
+            return "ERROR: The weather change does not affect the environment. Cannot perform action";
+        }
+
+        double seasonPenalty = command.getSeason().equalsIgnoreCase("Spring") ? springValue
+                :
+                basicValueForChangeWeather;
         this.airQuality -= seasonPenalty;
+        this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
+        return null;
     }
 }
 
@@ -207,29 +261,35 @@ class DesertAir extends Air {
         super(name, mass, "DesertAir", humidity, temperature, oxygenLevel);
         this.dustParticles = dustParticles;
         setAirQualityIndicator();
-        this.maxScore = sixtyFive;
+        this.maxScore = desertAirMaxScore;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double desertAirQualityScore = (oxygenLevel * two)
+        double desertAirQualityScore = (oxygenLevel * desertAirOxygenMultiplier)
                 -
-                (dustParticles * zeroPointTwo)
+                (dustParticles * desertAirDustParticlesMultiplier)
                 -
-                (temperature * zeroPointThree);
+                (temperature * desertAirTemperatureMultiplier);
         double normalizedQualityScore = normalizeScore(desertAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(final CommandInput command) {
+    public String changeWeatherConditions(final CommandInput command) {
+        if (!command.getType().equals("desertStorm")) {
+            return "ERROR: The weather change does not affect the environment. Cannot perform action";
+        }
         if (command.isDesertStorm()) {
             this.desertStorm = true;
         }
 
-        this.airQuality -= (command.isDesertStorm() ? thirty : zero);
+        this.airQuality -= (command.isDesertStorm() ? desertStormValue
+                :
+                basicValueForChangeWeather);
+        return null;
 
     }
 }
@@ -243,23 +303,28 @@ class MountainAir extends Air {
         super(name, mass, "MountainAir", humidity, temperature, oxygenLevel);
         this.altitude = altitude;
         setAirQualityIndicator();
-        this.maxScore = seventyEight;
+        this.maxScore = mountainAirMaxScore;
         this.toxicityAQ = calculateToxicityAQ(airQuality, maxScore);
         this.possibilityToGetDamagedByAir = calculateFinalResult(toxicityAQ);
     }
 
     @Override
     public double calculateAirQuality() {
-        double oxygenFactor = oxygenLevel - (altitude / oneThousand * zeroPointFive);
-        double mountainAirQualityScore = (oxygenFactor * two) + (humidity * zeroPointSix);
+        double oxygenFactor = oxygenLevel - (altitude / altitudeDivisor * altitudeMultiplier);
+        double mountainAirQualityScore = (oxygenFactor * mountainAirOxygenMultiplier)
+                +
+                (humidity * mountainAirHumidityMultiplier);
         double normalizedQualityScore = normalizeScore(mountainAirQualityScore);
         return roundScore(normalizedQualityScore);
     }
 
     @Override
-    public void changeWeatherConditions(final CommandInput command) {
-        this.airQuality -= (command.getNumberOfHikers() * zeroPointOne);
+    public String changeWeatherConditions(final CommandInput command) {
+        if (!command.getType().equals("peopleHiking")) {
+            return "ERROR: The weather change does not affect the environment. Cannot perform action";
+        }
+        this.airQuality -= (command.getNumberOfHikers() * mountainAirHikersMultiplier);
+        return null;
     }
-
 }
 

@@ -17,8 +17,10 @@ public class PrintKnowledgeBase implements CommandInterface {
                         final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
         result.put("command", "printKnowledgeBase");
-        if (!robot.isSimulationStarted()) {
-            result.put("message", "ERROR: Simulation not started. Cannot perform action");
+        String errorMessage = robot.returnBasicErrors();
+
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
         } else {
             ArrayNode knowledgeBaseArray = MAPPER.createArrayNode();
 

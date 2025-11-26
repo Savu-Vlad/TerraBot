@@ -3,13 +3,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import robot.Robot;
-
 import map.Map;
 import map.MapCardinalPoints;
 
 @Getter
 @Setter
-public abstract class Animal extends Entity {
+public abstract class Animal extends Entity implements UpdatableInterface {
     @JsonIgnore
     protected double possibilityToAttackRobot;
     @JsonIgnore
@@ -28,12 +27,56 @@ public abstract class Animal extends Entity {
     protected boolean hasEatenPrey;
     @JsonIgnore
     protected boolean processedForThisTimestamp;
+    @JsonIgnore
+    private final int totalNumberOfPossibleMoves = 4;
+    @JsonIgnore
+    private final int bestCandidateIndex = 3;
+    @JsonIgnore
+    private final int secondBestCandidateIndex = 2;
+    @JsonIgnore
+    private final int thirdBestCandidateIndex = 1;
+    @JsonIgnore
+    private final int worstCandidateIndex = 0;
+    @JsonIgnore
+    private final double waterIntakeMultiplier = 0.08;
+    @JsonIgnore
+    private final double soilImprovementAfterEatingBothWaterAndPlant = 0.8;
+    @JsonIgnore
+    private final double soilImprovementAfterEatingSomethingElse = 0.5;
+    @JsonIgnore
+    protected final int detrivoresAttackPossibility = 90;
+    @JsonIgnore
+    protected final int herbivoresAttackPossibility = 85;
+    @JsonIgnore
+    protected final int omnivoresAttackPossibility = 60;
+    @JsonIgnore
+    protected final int carnivoresAttackPossibility = 30;
+    @JsonIgnore
+    protected final int parasitesAttackPossibility = 10;
+    @JsonIgnore
+    protected final double tenPointZeroDivisor = 10.0;
+    @JsonIgnore
+    protected final int oneHundred = 100;
+    @JsonIgnore
+    protected final double zeroBoundsCheck = 0;
 
+   /**
+    * Method to calculate the possibility to attack the robot
+    * */
     public double calculatePossibilityToAttackRobot(final double attackPossibility) {
-        return (oneHundred - attackPossibility) / tenPointZero;
+        return (oneHundred - attackPossibility) / tenPointZeroDivisor;
     }
 
+    /**
+     * This method will be overridden in each subclass of Animal
+     * Vegetarian animals will use feedAnimalWithoutPrey method
+     * MeatEater animals will use feedAnimalWithPrey method first, then feedAnimalWithoutPrey method
+     * If they don't find any animals to eat
+     * */
+    public abstract void feedAnimal(Map map, int timestamp);
+
     public Animal() {
+
     }
 
     public Animal(final String name, final double mass, final String type) {
@@ -41,16 +84,50 @@ public abstract class Animal extends Entity {
         this.stateOfHunger = "hungry";
     }
 
-    public boolean checkIfInBounds(Map map, int xToMoveAnimal, int yToMoveAnimal) {
-        return xToMoveAnimal >= zero && xToMoveAnimal < map.getRowLength()
-                &&
-                yToMoveAnimal >= zero && yToMoveAnimal < map.getColumnLength();
+    private int findBestWaterQualityIndex(final Map.MapCell[] adjacentCells,
+                                          final int[] bestCandidate,
+                                          final int candidateIndex) {
+        double bestWaterQuality = -1.0;
+        int bestIndex = -1;
+
+        for (int i = 0; i < bestCandidate.length; i++) {
+            if (bestCandidate[i] == candidateIndex) {
+                double currentWaterQuality = adjacentCells[i].getWater().getWaterQuality();
+                if (currentWaterQuality > bestWaterQuality) {
+                    bestWaterQuality = currentWaterQuality;
+                    bestIndex = i;
+                }
+            }
+        }
+
+        return bestIndex;
     }
 
-    public void moveAnimal(Map map, String bestMove) {
+
+    /**
+     * Method to check if the animal is in bounds
+     * Method that gets used when the animal needs to move to eat
+     * The order is up right down left
+     * */
+    public boolean checkIfInBounds(final Map map,
+                                   final int xToMoveAnimal,
+                                   final int yToMoveAnimal) {
+        return xToMoveAnimal >= zeroBoundsCheck && xToMoveAnimal < map.getRowLength()
+                &&
+                yToMoveAnimal >= zeroBoundsCheck && yToMoveAnimal < map.getColumnLength();
+    }
+
+
+    /**
+     * Method that moves the animal to the best position
+     * it gets the oldCell and then sets the animal to null in the old Cell
+     * then it gets the newCell and sets the animal to the new Cell
+     * The @param bestMove is the direction in which the animal will move
+     * The bestMove param is determined by the bestMoveForAnimal method
+     * Will be explained in bestMoveForAnimal method
+     * */
+    public void moveAnimal(final Map map, final String bestMove) {
         Map.MapCell oldCell = map.getMapCell(this.x, this.y);
-        System.out.println("DEBUG: Animal " + this.name + " moving from (" + this.x + ", " + this.y + ") - Direction: " + bestMove);
-        System.out.println("DEBUG: Old cell objects count: " + oldCell.getEntitiesCount());
         switch (bestMove) {
             case "NORTH" -> {
                 this.y += 1;
@@ -64,22 +141,26 @@ public abstract class Animal extends Entity {
             case "WEST" -> {
                 this.x -= 1;
             }
+            default -> {
+                //does nothing, the animal shouldn't get stuck !!
+            }
         }
         Map.MapCell newCell = map.getMapCell(this.x, this.y);
-        System.out.println("DEBUG: Animal " + this.name + " arrived at (" + this.x + ", " + this.y + ")");
-        System.out.println("DEBUG: New cell objects count before: " + newCell.getEntitiesCount());
         newCell.setAnimal(this);
         oldCell.setAnimal(null);
-        System.out.println("DEBUG: New cell objects count after: " + newCell.getEntitiesCount());
-        System.out.println("DEBUG: Old cell objects count after: " + oldCell.getEntitiesCount());
     }
 
-    public void feedAnimalWithoutPrey(Map map) {
+    /**
+     * feedAnimalWithoutPrey method will feed the animal with plants and water
+     * if both are available, it will eat both
+     * if not, the animal will eat the plant if it is scanned and if not it will drink water
+     * After the plant is eaten, it is set to null and if all the water is drunk,
+     * it is set to null
+     * */
+    public void feedAnimalWithoutPrey(final Map map) {
         Map.MapCell currentCell = map.getMapCell(this.x, this.y);
         this.feedWithPrey = false;
-        System.out.println("DEBUG: Animal " + this.name + " feeding at position (" + this.x + ", " + this.y + ")");
-        System.out.println("DEBUG: Cell objects count: " + currentCell.getEntitiesCount());
-        double intakeRate = 0.08;
+        double intakeRate = this.waterIntakeMultiplier;
         if (currentCell.getPlant() != null && currentCell.getPlant().isScannedByRobot()
                 &&
                 currentCell.getWater() != null && currentCell.getWater().isScannedByRobot()) {
@@ -107,7 +188,8 @@ public abstract class Animal extends Entity {
         } else if (currentCell.getWater() != null
                 &&
                 currentCell.getWater().isScannedByRobot()) {
-            double waterToDrink = Math.min(currentCell.getAnimal().getMass() * intakeRate, currentCell.getWater().getMass());
+            double waterToDrink = Math.min(currentCell.getAnimal().getMass() * intakeRate,
+                    currentCell.getWater().getMass());
             currentCell.getWater().setMass(currentCell.getWater().getMass() - waterToDrink);
             currentCell.getAnimal().setMass(waterToDrink + currentCell.getAnimal().getMass());
             if (currentCell.getWater().getMass() <= 0.0) {
@@ -127,8 +209,8 @@ public abstract class Animal extends Entity {
      * 1 - cell has only water, the animal moves to the best water quality cell
      * 0 - cell has neither, the animal moves to the ordinary cell, up right down left
      * */
-    public String bestMoveForAnimal(Map map) {
-        Map.MapCell[] adjacentCells = new Map.MapCell[4];//poate trebuie sa fie verificat invers sa ma mai uit in move robot !!!
+    public String bestMoveForAnimal(final Map map) {
+        Map.MapCell[] adjacentCells = new Map.MapCell[totalNumberOfPossibleMoves];
 
         for (MapCardinalPoints mapCoordinates : MapCardinalPoints.values()) {
             if (mapCoordinates == MapCardinalPoints.NORTH) {
@@ -151,31 +233,35 @@ public abstract class Animal extends Entity {
                 }
             } else if (mapCoordinates == MapCardinalPoints.WEST) {
                 if (checkIfInBounds(map, this.x - 1, this.y)) {
-                    adjacentCells[3] = map.getMapCell(this.x - 1, this.y);
+                    adjacentCells[bestCandidateIndex] = map.getMapCell(this.x - 1, this.y);
                 } else {
-                    adjacentCells[3] = null;
+                    adjacentCells[bestCandidateIndex] = null;
                 }
             }
         }
 
-        int[] bestCandidate = new int[4];
-
-        //cred ca trebuie sa iau in calcul si daca este scanata entitatea respectiva, adica planta sau apa !!!
-        //sa mai vad cum se misca animalul in functie de chestile scanate si sa calculez calitatea apei daca se ia
-        //daca e scanata sau nu !!!
+        int[] bestCandidate = new int[totalNumberOfPossibleMoves];
 
         for (int i = 0; i < adjacentCells.length; i++) {
             Map.MapCell adjacentCell = adjacentCells[i];
-            if (adjacentCell != null && adjacentCell.getWater() != null && adjacentCell.getWater().isScannedByRobot()
+            Water water = null;
+            Plant plant = null;
+            if (adjacentCell != null) {
+                water = adjacentCell.getWater();
+            }
+            if (adjacentCell != null) {
+                plant = adjacentCell.getPlant();
+            }
+            if (adjacentCell != null && water != null && water.isScannedByRobot()
                     &&
-                    adjacentCell.getPlant() != null && adjacentCell.getPlant().isScannedByRobot()) {
-                bestCandidate[i] = 3;
-            } else if (adjacentCell != null && adjacentCell.getPlant() != null && adjacentCell.getPlant().isScannedByRobot()) {
-                bestCandidate[i] = 2;
-            } else if (adjacentCell != null && adjacentCell.getWater() != null && adjacentCell.getWater().isScannedByRobot()) {
-                bestCandidate[i] = 1;
+                    plant != null && plant.isScannedByRobot()) {
+                bestCandidate[i] = bestCandidateIndex;
+            } else if (adjacentCell != null && plant != null && plant.isScannedByRobot()) {
+                bestCandidate[i] = secondBestCandidateIndex;
+            } else if (adjacentCell != null && water != null && water.isScannedByRobot()) {
+                bestCandidate[i] = thirdBestCandidateIndex;
             } else if (adjacentCell != null) {
-                bestCandidate[i] = 0;
+                bestCandidate[i] = worstCandidateIndex;
             } else {
                 bestCandidate[i] = -1;
             }
@@ -191,33 +277,21 @@ public abstract class Animal extends Entity {
             }
         }
 
-        if (bestPriority == 3) {
+        if (bestPriority == bestCandidateIndex) {
+            bestIndex = findBestWaterQualityIndex(adjacentCells,
+                    bestCandidate,
+                    bestCandidateIndex);
+        } else if (bestPriority == secondBestCandidateIndex) {
             for (int i = 0; i < bestCandidate.length; i++) {
-                if (bestCandidate[i] == 3) {
-                    double currentWaterQuality = adjacentCells[i].getWater().getWaterQuality();
-                    if (currentWaterQuality > bestWaterQuality) {
-                        bestWaterQuality = currentWaterQuality;
-                        bestIndex = i;
-                    }
-                }
-            }
-        } else if (bestPriority == 2) {
-            for (int i = 0; i < bestCandidate.length; i++) {
-                if (bestCandidate[i] == 2) {
+                if (bestCandidate[i] == secondBestCandidateIndex) {
                     bestIndex = i;
                     break;
                 }
             }
-        } else if (bestPriority == 1) {
-            for (int i = 0; i < bestCandidate.length; i++) {
-                if (bestCandidate[i] == 1) {
-                    double currentWaterQuality = adjacentCells[i].getWater().getWaterQuality();
-                    if (currentWaterQuality > bestWaterQuality) {
-                        bestWaterQuality = currentWaterQuality;
-                        bestIndex = i;
-                    }
-                }
-            }
+        } else if (bestPriority == thirdBestCandidateIndex) {
+            bestIndex = findBestWaterQualityIndex(adjacentCells,
+                    bestCandidate,
+                    thirdBestCandidateIndex);
         } else {
             for (int i = 0; i < bestCandidate.length; i++) {
                 if (bestCandidate[i] == 0) {
@@ -242,54 +316,64 @@ public abstract class Animal extends Entity {
         return "WILL REMAIN HUNGRY";
     }
 
-    public void feedAnimalWithPrey(Map map) {
+    /**
+     * Only for carnivores and parasites, the animal will eat the animal before moving
+     * After moving, the prey is set to null in the cell that the animal will move
+     * */
+    public void feedAnimalWithPrey(final Map map) {
         String bestPositionForCell = bestMoveForAnimal(map);
         Animal animalPrey = null;
-        Map.MapCell animalPreyCell = null;
-        System.out.println("DEBUG: Animal " + this.name + " (Carnivore/Parasite) looking for prey from position (" + this.x + ", " + this.y + ")");
-        System.out.println("DEBUG: Best move for prey: " + bestPositionForCell);
+        Map.MapCell animalPreyCell;
 
         switch (bestPositionForCell) {
             case "NORTH" -> animalPrey = map.getMapCell(this.x, this.y + 1).getAnimal();
             case "EAST" -> animalPrey = map.getMapCell(this.x + 1, this.y).getAnimal();
             case "SOUTH" -> animalPrey = map.getMapCell(this.x, this.y - 1).getAnimal();
             case "WEST" -> animalPrey = map.getMapCell(this.x - 1, this.y).getAnimal();
+            default -> {
+                //does nothing, returns null if the is no prey available
+            }
         }
 
         if (animalPrey == null) {
-            System.out.println("DEBUG: No prey found");
             return;
         }
 
         animalPreyCell = map.getMapCell(animalPrey.getX(), animalPrey.getY());
-        System.out.println("DEBUG: Found prey " + animalPrey.getName() + " at (" + animalPrey.getX() + ", " + animalPrey.getY() + ")");
-        System.out.println("DEBUG: Prey cell objects count before: " + animalPreyCell.getEntitiesCount());
         this.setMass(this.getMass() + animalPrey.getMass());
         this.feedWithPrey = true;
         animalPreyCell.setAnimal(null);
-        System.out.println("DEBUG: Prey cell objects count after: " + animalPreyCell.getEntitiesCount());
     }
 
-    @Override
-    public void updateMapWithScannedObject(Robot robot, Map map, Map.MapCell cell, int timestamp) {
-        System.out.println("DEBUG: ====== UPDATE ANIMAL " + this.name + " at timestamp " + timestamp + " ======");
-        System.out.println("DEBUG: Animal position: (" + this.x + ", " + this.y + ")");
-        System.out.println("DEBUG: Animal state: " + this.stateOfHunger);
-        System.out.println("DEBUG: Scanned at timestamp: " + this.timestampAtWhichItWasScanned);
 
+    /**
+     * if 2 iterations have passed, the animal will move to eat
+     * if the animal is either carnivore or parasite, it will first eat the prey and then move
+     * The movement is determined by the bestMoveForAnimal method, it does not get influenced by
+     * the presence of prey, only by water and plant
+     * */
+    @Override
+    public void updateMapWithScannedObject(final Robot robot,
+                                           final Map map,
+                                           final Map.MapCell cell,
+                                           final int timestamp) {
         if (this.processedForThisTimestamp) {
-            System.out.println("DEBUG: Already processed for this timestamp, skipping");
             return;
         }
 
         int differentiationBetweenTimestamps = timestamp - this.timestampAtWhichItWasScanned;
-        System.out.println("DEBUG: Timestamp difference: " + differentiationBetweenTimestamps);
 
         if (this.stateOfHunger.equals("well-fed")) {
             if (this.hasEatenPlant && this.hasDrankWater) {
-                map.getMapCell(this.x, this.y).getSoil().
-                        setOrganicMatter(map.getMapCell(this.x, this.y).
-                                getSoil().getOrganicMatter() + 0.8);
+                if (cell.getAir() != null) {
+                    Air air = cell.getAir();
+                    if (air.getToxicityAQ() < (0.8 * air.getMaxScore())) {
+                        Soil soil = cell.getSoil();
+                        soil.setOrganicMatter(soil.getOrganicMatter()
+                                +
+                                soilImprovementAfterEatingBothWaterAndPlant);
+                    }
+                }
                 this.stateOfHunger = "hungry";
                 this.hasDrankWater = false;
                 this.hasEatenPlant = false;
@@ -297,9 +381,16 @@ public abstract class Animal extends Entity {
             }
 
             if (this.hasEatenPlant || this.hasEatenPrey || this.hasDrankWater) {
-                map.getMapCell(this.x, this.y).getSoil().
-                        setOrganicMatter(map.getMapCell(this.x, this.y).
-                                getSoil().getOrganicMatter() + 0.5);
+                if (cell.getAir() != null) {
+                    Air air = cell.getAir();
+                    if (air.getToxicityAQ() < (0.8 * air.getMaxScore())) {
+                        Soil soil = cell.getSoil();
+                        soil.setOrganicMatter(soil.getOrganicMatter()
+                                +
+                                soilImprovementAfterEatingSomethingElse);
+                    }
+                }
+
                 this.stateOfHunger = "hungry";
                 this.hasDrankWater = false;
                 this.hasEatenPlant = false;
@@ -308,63 +399,93 @@ public abstract class Animal extends Entity {
 
         }
 
-        if (this.type.equals("Carnivores") || this.type.equals("Parasites")) {
-            if (differentiationBetweenTimestamps % 2 == 0) {
-                this.feedAnimalWithPrey(map);
-                if (this.feedWithPrey) {
-                    String bestMove = bestMoveForAnimal(map);
-                    moveAnimal(map, bestMove);
-                } else {
-                    this.feedAnimalWithoutPrey(map);
-                    String bestMove = bestMoveForAnimal(map);
-                    moveAnimal(map, bestMove);
-                }
-            } else {
-                this.feedAnimalWithoutPrey(map);
-            }
-        } else {
-            this.feedAnimalWithoutPrey(map);
-            if (differentiationBetweenTimestamps % 2 == 0) {
-                String bestMove = bestMoveForAnimal(map);
-                moveAnimal(map, bestMove);
-            }
-        }
+        this.feedAnimal(map, differentiationBetweenTimestamps);
         this.setProcessedForThisTimestamp(true);
     }
 
 }
 
-class Herbivores extends Animal {
+class Vegetarians extends Animal {
+    Vegetarians(final String name, final double mass, final String type) {
+        super(name, mass, type);
+    }
+
+    @Override
+    public void feedAnimal(final Map map, final int timestamp) {
+        this.feedAnimalWithoutPrey(map);
+        if (timestamp % 2 == 0) {
+            String bestMove = bestMoveForAnimal(map);
+            moveAnimal(map, bestMove);
+        }
+    }
+}
+
+class MeatEaters extends Animal {
+    MeatEaters(final String name,
+               final double mass,
+               final String type) {
+        super(name, mass, type);
+    }
+
+    @Override
+    public void feedAnimal(final Map map, final int timestamp) {
+        if (timestamp % 2 == 0) {
+            this.feedAnimalWithPrey(map);
+            if (this.feedWithPrey) {
+                String bestMove = bestMoveForAnimal(map);
+                moveAnimal(map, bestMove);
+            } else {
+                this.feedAnimalWithoutPrey(map);
+                String bestMove = bestMoveForAnimal(map);
+                moveAnimal(map, bestMove);
+            }
+        } else {
+            this.feedAnimalWithoutPrey(map);
+        }
+    }
+}
+
+class Herbivores extends Vegetarians {
     Herbivores(final String name, final double mass) {
         super(name, mass, "Herbivores");
-        this.possibilityToAttackRobot = calculatePossibilityToAttackRobot(eightyFive);
+        this.possibilityToAttackRobot
+                =
+                calculatePossibilityToAttackRobot(herbivoresAttackPossibility);
     }
 }
 
-class Carnivores extends Animal {
+class Carnivores extends MeatEaters {
     Carnivores(final String name, final double mass) {
         super(name, mass, "Carnivores");
-        this.possibilityToAttackRobot = calculatePossibilityToAttackRobot(thirty);
+        this.possibilityToAttackRobot
+                =
+                calculatePossibilityToAttackRobot(carnivoresAttackPossibility);
     }
 }
 
-class Omnivores extends Animal {
+class Omnivores extends Vegetarians {
     Omnivores(final String name, final double mass) {
         super(name, mass, "Omnivores");
-        this.possibilityToAttackRobot = calculatePossibilityToAttackRobot(sixty);
+        this.possibilityToAttackRobot
+                =
+                calculatePossibilityToAttackRobot(omnivoresAttackPossibility);
     }
 }
 
-class Detritivores extends Animal {
+class Detritivores extends Vegetarians {
     Detritivores(final String name, final double mass) {
         super(name, mass, "Detritivores");
-        this.possibilityToAttackRobot = calculatePossibilityToAttackRobot(90);
+        this.possibilityToAttackRobot
+                =
+                calculatePossibilityToAttackRobot(detrivoresAttackPossibility);
     }
 }
 
-class Parasites extends Animal {
+class Parasites extends MeatEaters {
     Parasites(final String name, final double mass) {
         super(name, mass, "Parasites");
-        this.possibilityToAttackRobot = calculatePossibilityToAttackRobot(ten);
+        this.possibilityToAttackRobot
+                =
+                calculatePossibilityToAttackRobot(parasitesAttackPossibility);
     }
 }

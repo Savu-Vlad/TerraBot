@@ -1,32 +1,17 @@
 package main;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import fileio.AnimalInput;
-import fileio.AirInput;
-import fileio.PairInput;
-import fileio.PlantInput;
-import fileio.SoilInput;
 import fileio.SimulationInput;
 import fileio.TerritorySectionParamsInput;
-import fileio.WaterInput;
 import fileio.InputLoader;
 import fileio.CommandInput;
 import robot.Robot;
 import map.Map;
-import java.util.List;
-import entities.Animal;
-import entities.Plant;
-import entities.Water;
-import entities.Soil;
-import entities.Air;
-import entities.AirFactory;
-import entities.AnimalFactory;
-import entities.SoilFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import parser.EntityParser;
 
 /**
  * The entry point to this homework. It runs the checker that tests your implementation.
@@ -68,127 +53,43 @@ public final class Main {
          */
         ArrayList<SimulationInput> simulations = inputLoader.getSimulations();
         ArrayList<CommandInput> commands = inputLoader.getCommands();
+
         SimulationInput simulationParams = simulations.getFirst();
+        SimulationInput simulationParamsSecond = simulations.getLast();
 
         String mapDimensions = simulationParams.getTerritoryDim();
-        int energyPoints = simulationParams.getEnergyPoints();
-        TerritorySectionParamsInput territoryParams = simulationParams.getTerritorySectionParams();
+        String mapDimensionsSecond = simulationParamsSecond.getTerritoryDim();
 
-        List<PlantInput> plants = territoryParams.getPlants();
-        List<SoilInput> soils = territoryParams.getSoil();
-        List<AnimalInput> animals = territoryParams.getAnimals();
-        List<WaterInput> waters = territoryParams.getWater();
-        List<AirInput> airs = territoryParams.getAir();
+        int energyPoints = simulationParams.getEnergyPoints();
+        int energyPointsSecond = simulationParamsSecond.getEnergyPoints();
 
         int rowLength = Character.getNumericValue(mapDimensions.charAt(0));
         int columnLength = Character.getNumericValue(mapDimensions.charAt(2));
+        int rowLengthSecond = Character.getNumericValue(mapDimensionsSecond.charAt(0));
+        int columnLengthSecond = Character.getNumericValue(mapDimensionsSecond.charAt(2));
+
         Map map = new Map(rowLength, columnLength);
+        Map mapSecond = new Map(rowLengthSecond, columnLengthSecond);
 
         Robot robot = new Robot(energyPoints, map, commands, 0, 0);
 
-        for (PlantInput plant : plants) {
-            List<PairInput> position = plant.getSections();
-            String type = plant.getType();
-            String name = plant.getName();
-            double mass = plant.getMass();
+        EntityParser entityParser = new EntityParser();
+        EntityParser entityParserSecond = new EntityParser();
 
-            for (PairInput pos : position) {
-                int x = pos.getX();
-                int y = pos.getY();
-                Plant plantMap = new Plant(name, mass, type);
-                map.getGrid()[x][y].setPlant(plantMap);
-            }
-        }
+        entityParser.parseAllEntities(simulationParams, map);
+        entityParserSecond.parseAllEntities(simulationParamsSecond, mapSecond);
 
-        for (AnimalInput animal : animals) {
-            List<PairInput> position = animal.getSections();
-            String type = animal.getType();
-            String name = animal.getName();
-            double mass = animal.getMass();
-
-            for (PairInput pos : position) {
-                int x = pos.getX();
-                int y = pos.getY();
-                Animal animalFactory = AnimalFactory.createAnimal(type, name, mass);
-                map.getGrid()[x][y].setAnimal(animalFactory);
-            }
-        }
-
-        for (WaterInput water : waters) {
-            List<PairInput> position = water.getSections();
-            String name = water.getName();
-            String type = water.getType();
-            double mass = water.getMass();
-            double salinity = water.getSalinity();
-            double turbidity = water.getTurbidity();
-            double purity = water.getPurity();
-            double contaminantIndex = water.getContaminantIndex();
-            double ph = water.getPH();
-            boolean isFrozen = water.isFrozen();
-
-            for (PairInput pos : position) {
-                int x = pos.getX();
-                int y = pos.getY();
-                Water waterMap = new Water(name, type, mass, salinity,
-                        ph, purity, turbidity, contaminantIndex, isFrozen);
-                map.getGrid()[x][y].setWater(waterMap);
-            }
-        }
-
-        for (SoilInput soil : soils) {
-            List<PairInput> positions = soil.getSections();
-            String name = soil.getName();
-            String type = soil.getType();
-            double mass = soil.getMass();
-            double soilPH = soil.getSoilpH();
-            double nitrogen = soil.getNitrogen();
-            double waterRetention = soil.getWaterRetention();
-            double organicMatter = soil.getOrganicMatter();
-            Double leafLitter = soil.getLeafLitter();
-            Double waterLogging = soil.getWaterLogging();
-            Double permafrostDepth = soil.getPermafrostDepth();
-            Double rootDensity = soil.getRootDensity();
-            Double salinity = soil.getSalinity();
-
-            for (PairInput pos : positions) {
-                int x = pos.getX();
-                int y = pos.getY();
-                Soil soilMap = SoilFactory.createSoil(type, name, mass, nitrogen,
-                        waterRetention, soilPH, organicMatter,
-                        leafLitter, waterLogging, permafrostDepth, rootDensity, salinity);
-                map.getGrid()[x][y].setSoil(soilMap);
-            }
-        }
-
-        for (AirInput air : airs) {
-            List<PairInput> positions = air.getSections();
-            String name = air.getName();
-            String type = air.getType();
-            double mass = air.getMass();
-            double humidity = air.getHumidity();
-            double temperature = air.getTemperature();
-            double oxygenLevel = air.getOxygenLevel();
-            double co2Level = air.getCo2Level();
-            double altitude = air.getAltitude();
-            double pollenLevel = air.getPollenLevel();
-            double iceCrystalConcentration = air.getIceCrystalConcentration();
-            double dustParticles = air.getDustParticles();
-
-            for (PairInput pos : positions) {
-                int x = pos.getX();
-                int y = pos.getY();
-                Air airMap = AirFactory.createAir(type, name, mass,
-                        humidity, temperature, oxygenLevel,
-                         co2Level, iceCrystalConcentration, pollenLevel, dustParticles, altitude);
-                map.getGrid()[x][y].setAir(airMap);
-            }
-        }
-        //nu mai merge ca am schimbat aia la entity sa fie la super !!!
         for (CommandInput command : commands) {
+            if (command.getCommand().equals("startSimulation")) {
+                robot.setNumberOfSimulations(robot.getNumberOfSimulations() + 1);
+            }
+            if (robot.getNumberOfSimulations() == 2) {
+                robot = new Robot(energyPointsSecond, mapSecond, commands, 0, 0);
+                map = mapSecond;
+            }
             robot.executeCommand(command.getCommand(), map, output,
                     command.getTimestamp(), command);
         }
-
 
         File outputFile = new File(outputPath);
         outputFile.getParentFile().mkdirs();

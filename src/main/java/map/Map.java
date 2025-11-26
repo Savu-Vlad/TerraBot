@@ -1,5 +1,9 @@
 package map;
-import entities.*;
+import entities.Animal;
+import entities.Plant;
+import entities.Water;
+import entities.Air;
+import entities.Soil;
 import lombok.Getter;
 import lombok.Setter;
 import fileio.CommandInput;
@@ -16,38 +20,21 @@ public class Map {
     /**
      * Returns the MapCell from the coordinates passed as parameters.
     * */
-
     public MapCell getMapCell(final int x, final int y) {
         return grid[x][y];
     }
 
     /**
-     * Method that updates the weather conditions.
-     * The changeWeatherCondition is an abstract method from Air.
-     * Implemented in all Air subclasses.
-    * */
-
-    public void updateMapWithChangeWeatherCondition(final CommandInput command) {
-        for (int i = 0; i < rowLength; i++) {
-            for (int j = 0; j < columnLength; j++) {
-                if (grid[i][j].getAir() != null) {
-                    grid[i][j].getAir().changeWeatherConditions(command);
-                }
-            }
-        }
-    }
-
-    /**
      * Method that makes the interactions between the scanned objects.
      * It goes through the entire map and checks for scanned objects.
+     * The inventory from robot is used as an optimization if there are no scanned entities
+     * The real items that the robot actually uses to improve the environment are
+     * in databaseInventory.
      */
     public void updateMapWithScan(final Robot robot, final int timestamp) {
         if (robot.getInventory().isEmpty()) {
             return;
         }
-//        for (Entity entity : robot.getInventory()) {
-//            entity.updateMapWithScannedObject(robot, this, grid[entity.getX()][entity.getY()], timestamp);
-//        }
 
         for (int i = 0; i < rowLength; i++) {
             for (int j = 0; j < columnLength; j++) {
@@ -122,38 +109,44 @@ public class Map {
 
         /**
          * Setter method for Animal that also increases the entitiesCount
+         * And if the animal is being removed, called with setAnimal(null)
+         * it decreases the entitiesCount
          * */
         public void setAnimal(final Animal animal) {
-            this.animal = animal;
-            if (animal != null) {
-                this.entitiesCount++;
-            } else {
+            if (this.animal != null && animal == null) {
                 this.entitiesCount--;
+            } else if (this.animal == null && animal != null) {
+                this.entitiesCount++;
             }
+            this.animal = animal;
         }
 
         /**
          * Setter method for Plant that also increases the entitiesCount
+         * And if the plant is being removed, called with setPlant(null)
+         * it decreases the entitiesCount
          * */
         public void setPlant(final Plant plant) {
-            this.plant = plant;
-            if (plant != null) {
-                this.entitiesCount++;
-            } else {
+            if (this.plant != null && plant == null) {
                 this.entitiesCount--;
+            } else if (this.plant == null && plant != null) {
+                this.entitiesCount++;
             }
+            this.plant = plant;
         }
 
         /**
          * Setter method for Water that also increases the entitiesCount
+         * And if the water is being removed, called with setWater(null)
+         * it decreases the entitiesCount
          * */
         public void setWater(final Water water) {
-            this.water = water;
-            if (water != null) {
-                this.entitiesCount++;
-            } else {
+            if (this.water != null && water == null) {
                 this.entitiesCount--;
+            } else if (this.water == null && water != null) {
+                this.entitiesCount++;
             }
+            this.water = water;
         }
     }
 

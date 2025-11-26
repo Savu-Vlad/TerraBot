@@ -25,12 +25,18 @@ public class LearnFact implements CommandInterface {
         Entity foundEntity = null;
 
         result.put("command", "learnFact");
-        if (!robot.isSimulationStarted()) {
-            result.put("message", "ERROR: Simulation not started. Cannot perform action");
-        } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
-            result.put("message", "ERROR: Robot still charging. Cannot perform action");
-        } else if (robot.getEnergy() - energyCostForLearningFact < 0) {
+        String errorMessage = robot.returnBasicErrors();
+
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
+            result.put("timestamp", timestamp);
+            output.add(result);
+            return;
+        } else if (robot.getEnergy() - energyCostForLearningFact <= 0) {
             result.put("message", "ERROR: Not enough battery left. Cannot perform action");
+            result.put("timestamp", timestamp);
+            output.add(result);
+            return;
         } else {
             String component = command.getComponents();
 

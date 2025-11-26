@@ -26,13 +26,10 @@ public class ImproveEnvironment implements CommandInterface {
         ObjectNode result = MAPPER.createObjectNode();
 
         result.put("command", "improveEnvironment");
+        String errorMessage = robot.returnBasicErrors();
 
-        if (!robot.isSimulationStarted()) {
-            result.put("message",
-                    "ERROR: Simulation not started. Cannot perform action");
-        } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
-            result.put("message",
-                    "ERROR: Robot still charging. Cannot perform action");
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
         } else {
             boolean foundScannedEntity = false;
 
@@ -92,6 +89,13 @@ public class ImproveEnvironment implements CommandInterface {
                 result.put("message",
                         "The moisture was successfully increased using " + command.getName());
                 robot.improveSoilByAddingWaterBody(map, command.getName(), command.getType());
+            }
+
+            if (command.getImprovementType().equals("increaseHumidity")) {
+                robot.setEnergy(robot.getEnergy() - energyLevelCost);
+                result.put("message",
+                        "The humidity was successfully increased using " + command.getName());
+                robot.improveAirByAddingWaterBody(map, command.getName(), command.getType());
             }
         }
 

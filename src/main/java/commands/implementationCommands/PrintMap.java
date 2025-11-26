@@ -18,9 +18,10 @@ public class PrintMap implements CommandInterface {
                         final int timestamp, final CommandInput command) {
         ObjectNode result = MAPPER.createObjectNode();
         result.put("command", "printMap");
+        String errorMessage = robot.returnBasicErrors();
 
-        if (!robot.isSimulationStarted()) {
-            result.put("message", "ERROR: Simulation not started. Cannot perform action");
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
         } else {
             ArrayNode cellArray = MAPPER.createArrayNode();
 
@@ -46,7 +47,7 @@ public class PrintMap implements CommandInterface {
         output.add(result);
     }
 
-    private ObjectNode entityToJsonNode(Object entity) {
+    private ObjectNode entityToJsonNode(final Object entity) {
         return MAPPER.valueToTree(entity);
     }
 }

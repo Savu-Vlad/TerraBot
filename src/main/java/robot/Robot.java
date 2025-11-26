@@ -13,7 +13,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Robot {
-    private static Robot instance = null;
     private int energy;
     private ArrayList<CommandInput> commands;
     private Map map;
@@ -22,7 +21,12 @@ public class Robot {
     private int y;
     private int timeAtWhichRechargingIsDone;
     private ArrayList<Entity> inventory = new ArrayList<>();
-    private final double zeroPointTree = 0.3;
+    private final double waterRetentionIncrease = 0.3;
+    private final double humidityIncrease = 0.2;
+    private final double oxygenLevelIncrease = 0.3;
+    private ArrayList<Entity> databaseInventory = new ArrayList<>();
+    private ArrayList<KnowledgeBase> knowledgeBase = new ArrayList<>();
+    private int numberOfSimulations;
 
     /**
      * The databaseInventory is for the interactions to continue
@@ -32,8 +36,6 @@ public class Robot {
      * For the interactions to still happen.
      * */
 
-    private ArrayList<Entity> databaseInventory = new ArrayList<>();
-    private ArrayList<KnowledgeBase> knowledgeBase = new ArrayList<>();
     public Robot(final int energy, final Map map,
                  final ArrayList<CommandInput> commands, final int x, final int y) {
         this.commands = commands;
@@ -48,7 +50,6 @@ public class Robot {
      * Method that checks if the robot is out of bounds
      * when the moveRobot command is called.
      * */
-
     public boolean checkIfOutOfBounds(final int xToMoveRobot, final int yToMoveRobot) {
         return xToMoveRobot >= 0 && xToMoveRobot < map.getRowLength()
                 &&
@@ -59,7 +60,6 @@ public class Robot {
      * Method that removes an item from the databaseInventory after
      * being "used" to improve the environment.
      * */
-
     public void removeItemFromDataBaseInventory(final String itemName, final String itemType) {
         for (int i = 0; i < databaseInventory.size(); i++) {
             if (databaseInventory.get(i).getName().equals(itemName)
@@ -78,7 +78,9 @@ public class Robot {
                                           final String plantName, final String plantType) {
         Map.MapCell cellToBeImproved = map.getMapCell(this.x, this.y);
         Air entityToBeImproved = cellToBeImproved.getAir();
-        entityToBeImproved.setOxygenLevel(entityToBeImproved.getOxygenLevel() + zeroPointTree);
+        entityToBeImproved.setOxygenLevel(entityToBeImproved.getOxygenLevel()
+                +
+                oxygenLevelIncrease);
         entityToBeImproved.setAirQuality(entityToBeImproved.calculateAirQuality());
         removeItemFromDataBaseInventory(plantName, plantType);
     }
@@ -92,10 +94,35 @@ public class Robot {
         Map.MapCell cellToBeImproved = map.getMapCell(this.x, this.y);
         Soil entityToBeImproved = cellToBeImproved.getSoil();
         entityToBeImproved.setWaterRetention(entityToBeImproved.getWaterRetention()
-                + zeroPointTree);
+                + waterRetentionIncrease);
         entityToBeImproved.setSoilQuality(entityToBeImproved.calculateSoilQuality());
         entityToBeImproved.setSoilQualityIndicator();
         removeItemFromDataBaseInventory(waterBodyName, waterBodyType);
+    }
+
+    public void improveAirByAddingWaterBody(final Map map,
+                                            final String waterBodyName,
+                                            final String waterBodyType) {
+        Map.MapCell cellToBeImproved = map.getMapCell(this.x, this.y);
+        Air entityToBeImproved = cellToBeImproved.getAir();
+        entityToBeImproved.setHumidity(entityToBeImproved.getHumidity() + humidityIncrease);
+        entityToBeImproved.setAirQuality(entityToBeImproved.calculateAirQuality());
+        removeItemFromDataBaseInventory(waterBodyName, waterBodyType);
+    }
+
+
+    /**
+     * This method checks if the robot has any basic errors cause by the commands
+     * Basic errors mean : simulation not started, robot still charging
+     * */
+    public String returnBasicErrors() {
+        if (!this.isSimulationStarted) {
+            return "ERROR: Simulation not started. Cannot perform action";
+        } else if (this.getTimeAtWhichRechargingIsDone() > this.map.getMapTimestamp()) {
+            return "ERROR: Robot still charging. Cannot perform action";
+        }
+
+        return null;
     }
 
     /**
@@ -106,7 +133,6 @@ public class Robot {
                                final ArrayNode output, final int timestamp,
                                final CommandInput command) {
         this.map.setMapTimestamp(timestamp);
-        //aparent se poate da sout println si printeaza la testul de la output !!!
         this.map.updateMapWithScan(this, timestamp);
         switch (commandName) {
             case "startSimulation" -> {
@@ -144,6 +170,9 @@ public class Robot {
             }
             case "improveEnvironment" -> {
                 new ImproveEnvironment().execute(this, map, output, timestamp, command);
+            }
+            default -> {
+                System.out.println("Unknown command !!!@!!!");
             }
         }
     }

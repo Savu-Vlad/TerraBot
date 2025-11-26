@@ -22,11 +22,10 @@ public class MoveRobot implements CommandInterface {
         ObjectNode result = MAPPER.createObjectNode();
 
         result.put("command", "moveRobot");
+        String errorMessage = robot.returnBasicErrors();
 
-        if (!robot.isSimulationStarted()) {
-            result.put("message", "ERROR: Simulation not started. Cannot perform action");
-        } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
-            result.put("message", "ERROR: Robot still charging. Cannot perform action");
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
         } else {
 
             if (robot.getEnergy() < 0) {

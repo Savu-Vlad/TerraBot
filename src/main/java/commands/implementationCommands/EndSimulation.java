@@ -19,16 +19,15 @@ public class EndSimulation implements CommandInterface {
         ObjectNode result = MAPPER.createObjectNode();
 
         result.put("command", "endSimulation");
+        String errorMessage = robot.returnBasicErrors();
 
-        if (!robot.isSimulationStarted()) {
-            result.put("error", "ERROR: Simulation not started. Cannot perform action");
-            result.put("timestamp", timestamp);
-            output.add(result);
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
         } else {
             robot.setSimulationStarted(false);
             result.put("message", "Simulation has ended.");
-            result.put("timestamp", timestamp);
-            output.add(result);
         }
+        result.put("timestamp", timestamp);
+        output.add(result);
     }
 }

@@ -7,7 +7,7 @@ import robot.Robot;
 
 @Getter
 @Setter
-public class Plant extends Entity {
+public class Plant extends Entity implements UpdatableInterface {
     @JsonIgnore
     private double oxygenLevel;
     @JsonIgnore
@@ -30,6 +30,35 @@ public class Plant extends Entity {
     private final double secondStageOxygenLevel = 0.7;
     @JsonIgnore
     private final double thirdStageOxygenLevel = 0.4;
+    @JsonIgnore
+    private final int basicPlantValue = 0;
+    @JsonIgnore
+    private final double basicPlantValueDecimal = 0.0;
+    @JsonIgnore
+    private final double growthRatePlant = 0.2;
+    @JsonIgnore
+    private final double floweringPlantsPossibility = 0.9;
+    @JsonIgnore
+    private final double mossesPlantsPossibility = 0.4;
+    @JsonIgnore
+    private final double algaePlantsPossibility = 0.2;
+    @JsonIgnore
+    private final double gymnospermsPlantsPossibility = 0.6;
+    @JsonIgnore
+    private final double fernsPlantsPossibility = 0.3;
+    @JsonIgnore
+    private final double floweringPlantsOxygenLevel = 6.0;
+    @JsonIgnore
+    private final double mossesPlantsOxygenLevel = 0.8;
+    @JsonIgnore
+    private final double algaePlantsOxygenLevel = 0.5;
+    @JsonIgnore
+    private final double gymnospermsPlantsOxygenLevel = 0.0;
+    @JsonIgnore
+    private final double fernsPlantsOxygenLevel = 0.0;
+    @JsonIgnore
+    private final double upperBoundGrowthRate = 3.0;
+
 
     public Plant() {
 
@@ -41,28 +70,28 @@ public class Plant extends Entity {
         this.maturityOxygenLevel = firstStageOxygenLevel;
         switch (type) {
             case "FloweringPlants" -> {
-                this.oxygenLevel = sixPointZero;
-                this.possibilityToGetStuckInPlant = zeroPointNine;
+                this.oxygenLevel = floweringPlantsOxygenLevel;
+                this.possibilityToGetStuckInPlant = floweringPlantsPossibility;
             }
             case "Mosses" -> {
-                this.oxygenLevel = zeroPointEight;
-                this.possibilityToGetStuckInPlant = zeroPointFour;
+                this.oxygenLevel = mossesPlantsOxygenLevel;
+                this.possibilityToGetStuckInPlant = mossesPlantsPossibility;
             }
             case "Algae" -> {
-                this.oxygenLevel = zeroPointFive;
-                this.possibilityToGetStuckInPlant = zeroPointTwo;
+                this.oxygenLevel = algaePlantsOxygenLevel;
+                this.possibilityToGetStuckInPlant = algaePlantsPossibility;
             }
             case "GymnospermsPlants" ->  {
-                this.oxygenLevel = zeroPointZero;
-                this.possibilityToGetStuckInPlant = zeroPointSix;
+                this.oxygenLevel = gymnospermsPlantsOxygenLevel;
+                this.possibilityToGetStuckInPlant = gymnospermsPlantsPossibility;
             }
             case "Ferns" -> {
-                this.oxygenLevel = zeroPointZero;
-                this.possibilityToGetStuckInPlant = zeroPointThree;
+                this.oxygenLevel = fernsPlantsOxygenLevel;
+                this.possibilityToGetStuckInPlant = fernsPlantsPossibility;
             }
             default -> {
-                this.oxygenLevel = zeroPointZero;
-                this.possibilityToGetStuckInPlant = zeroPointZero;
+                this.oxygenLevel = basicPlantValueDecimal;
+                this.possibilityToGetStuckInPlant = basicPlantValueDecimal;
             }
         }
     }
@@ -82,10 +111,9 @@ public class Plant extends Entity {
      * 3.0 the plant dies
      * */
     public void checkIfPlantAged() {
-        if (growthRate >= threePointZero) {
-            deadPlant = true;
-            maturityOxygenLevel = zero;
-            oxygenLevel = zero;
+        if (growthRate >= upperBoundGrowthRate) {
+            maturityOxygenLevel = basicPlantValue;
+            oxygenLevel = basicPlantValue;
         } else if (growthRate >= 2.0) {
             ageStatus = "Old";
             maturityOxygenLevel = thirdStageOxygenLevel;
@@ -111,9 +139,9 @@ public class Plant extends Entity {
 
         if (cell.getSoil() != null) {
             double previousGrowthRate = cell.getPlant().getGrowthRate();
-            previousGrowthRate += zeroPointTwo;
+            previousGrowthRate += growthRatePlant;
             cell.getPlant().setGrowthRate(roundScore(previousGrowthRate));
-            if (cell.getPlant().getGrowthRate() > threePointZero) {
+            if (cell.getPlant().getGrowthRate() > upperBoundGrowthRate) {
                 cell.setPlant(null);
             }
         }
@@ -130,7 +158,8 @@ public class Plant extends Entity {
         cell.getAir().setOxygenLevel(roundScore(currentAirOxygenLevel));
 
         Air tempAir = cell.getAir();
-        double tempToxicity = tempAir.calculateToxicityAQ(tempAir.getAirQuality(),
+        double airQuality = tempAir.calculateAirQuality();
+        double tempToxicity = tempAir.calculateToxicityAQ(airQuality,
                 tempAir.getMaxScore());
         cell.getAir().setToxicityAQ(tempToxicity);
         double tempFinalProb = tempAir.calculateFinalResult(tempToxicity);

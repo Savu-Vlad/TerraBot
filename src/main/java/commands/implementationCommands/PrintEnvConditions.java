@@ -9,6 +9,9 @@ import robot.Robot;
 
 public class PrintEnvConditions implements CommandInterface {
 
+    /**
+     * Method that prints the entities in the current cell in which the robot is located.
+     * */
     @Override
     public void execute(final Robot robot, final Map map, final ArrayNode output,
                         final int timestamp, final CommandInput command) {
@@ -18,11 +21,10 @@ public class PrintEnvConditions implements CommandInterface {
         Map.MapCell currentCell = map.getMapCell(robot.getX(), robot.getY());
 
         result.put("command", "printEnvConditions");
+        String errorMessage = robot.returnBasicErrors();
 
-        if (!robot.isSimulationStarted()) {
-            result.put("message", "ERROR: Simulation not started. Cannot perform action");
-        } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
-            result.put("message", "ERROR: Robot still charging. Cannot perform action");
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
         } else {
             if (currentCell.getSoil() != null) {
                 envOutput.set("soil", entityToJsonNode(currentCell.getSoil()));

@@ -20,11 +20,10 @@ public class RechargeBattery implements CommandInterface {
         ObjectNode result = MAPPER.createObjectNode();
 
         result.put("command", "rechargeBattery");
+        String errorMessage = robot.returnBasicErrors();
 
-        if (!robot.isSimulationStarted()) {
-            result.put("message", "ERROR: Simulation not started. Cannot perform action");
-        } else if (command.getTimestamp() < robot.getTimeAtWhichRechargingIsDone()) {
-            result.put("message", "ERROR: Robot still charging. Cannot perform action");
+        if (errorMessage != null) {
+            result.put("message", errorMessage);
         } else {
             robot.setEnergy(robot.getEnergy() + command.getTimeToCharge());
             robot.setTimeAtWhichRechargingIsDone(command.getTimeToCharge() + timestamp);
