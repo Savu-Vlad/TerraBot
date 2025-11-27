@@ -39,8 +39,7 @@ public class ScanObject implements CommandInterface {
                     map.getMapCell(x, y).getWater().setScannedByRobot(true);
                     map.getMapCell(x, y).getWater().setX(x);
                     map.getMapCell(x, y).getWater().setY(y);
-                    map.getMapCell(x,
-                            y).getWater().
+                    map.getMapCell(x, y).getWater().
                             setTimestampAtWhichItWasScanned(command.getTimestamp());
                     robot.getInventory().add(map.getMapCell(x, y).getWater());
                     robot.getDatabaseInventory().add(map.getMapCell(x, y).getWater());
@@ -56,12 +55,10 @@ public class ScanObject implements CommandInterface {
                     map.getMapCell(x, y).getPlant().setScannedByRobot(true);
                     map.getMapCell(x, y).getPlant().setX(x);
                     map.getMapCell(x, y).getPlant().setY(y);
-                    map.getMapCell(x,
-                            y).getPlant().
+                    map.getMapCell(x, y).getPlant().
                             setTimestampAtWhichItWasScanned(command.getTimestamp());
                     robot.getInventory().add(map.getMapCell(x, y).getPlant());
-                    robot.getDatabaseInventory().add(map.getMapCell(x,
-                            y).getPlant());
+                    robot.getDatabaseInventory().add(map.getMapCell(x, y).getPlant());
                     result.put("message", "The scanned object is a plant.");
                     robot.setEnergy(robot.getEnergy() - energyCostForScanObject);
 
@@ -73,13 +70,10 @@ public class ScanObject implements CommandInterface {
                     map.getMapCell(x, y).getAnimal().setScannedByRobot(true);
                     map.getMapCell(x, y).getAnimal().setX(x);
                     map.getMapCell(x, y).getAnimal().setY(y);
-                    map.getMapCell(x,
-                            y).getAnimal().
+                    map.getMapCell(x, y).getAnimal().
                             setTimestampAtWhichItWasScanned(command.getTimestamp());
-                    robot.getInventory().add(map.getMapCell(x,
-                            y).getAnimal());
-                    robot.getDatabaseInventory().add(map.getMapCell(x,
-                            y).getAnimal());
+                    robot.getInventory().add(map.getMapCell(x, y).getAnimal());
+                    robot.getDatabaseInventory().add(map.getMapCell(x, y).getAnimal());
                     result.put("message", "The scanned object is an animal.");
                     robot.setEnergy(robot.getEnergy() - energyCostForScanObject);
 

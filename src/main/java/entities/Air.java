@@ -81,6 +81,9 @@ public abstract class Air extends Entity {
     protected final double mountainAirHumidityMultiplier = 0.6;
     @JsonIgnore
     protected final double mountainAirHikersMultiplier = 0.1;
+    @JsonIgnore
+    protected boolean alreadyProcessedWeatherChange;
+
 
     /**
      * Method that calculates the toxicity of the air based on that formula
@@ -226,12 +229,6 @@ class TemperateAir extends Air {
 
     @Override
     public String changeWeatherConditions(final CommandInput command) {
-        /* Check if the season is null and the method calls on a type of air that isn't TemperateAir
-            * to avoid the program having a null pointer exception !!
-            * should be ok for the other methods because all the data
-            * in the json if not specified is 0 or false
-            * so for the other methods it would just do air quality - 0 or + 0 so it is safe
-         */
         if (command.getType().equals("newSeason")) {
             return "ERROR: The weather change does not affect the environment. Cannot perform action";
         }

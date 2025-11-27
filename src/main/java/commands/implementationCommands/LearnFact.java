@@ -51,7 +51,6 @@ public class LearnFact implements CommandInterface {
             result.put("message", "ERROR: Subject not yet saved. Cannot perform action");
         } else {
             robot.setEnergy(robot.getEnergy() - energyCostForLearningFact);
-            ArrayList<Entity> inventory = robot.getInventory();
             ArrayList<KnowledgeBase> knowledgeBase = robot.getKnowledgeBase();
 
             boolean foundKnowledgeBase = false;

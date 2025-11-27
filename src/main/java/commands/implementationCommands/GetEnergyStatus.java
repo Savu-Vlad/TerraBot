@@ -12,7 +12,6 @@ public class GetEnergyStatus implements CommandInterface {
      * Method that returns the energy of the robot and writes in the outputs
      * the aftermath of the command execution.
      * */
-
     @Override
     public void execute(final Robot robot, final Map map, final ArrayNode output,
                         final int timestamp, final CommandInput command) {

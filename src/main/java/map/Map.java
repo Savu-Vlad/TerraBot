@@ -6,7 +6,6 @@ import entities.Air;
 import entities.Soil;
 import lombok.Getter;
 import lombok.Setter;
-import fileio.CommandInput;
 import robot.Robot;
 
 @Getter

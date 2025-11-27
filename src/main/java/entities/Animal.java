@@ -54,17 +54,27 @@ public abstract class Animal extends Entity implements UpdatableInterface {
     @JsonIgnore
     protected final int parasitesAttackPossibility = 10;
     @JsonIgnore
-    protected final double tenPointZeroDivisor = 10.0;
+    protected final double animalAttackDivisor = 10.0;
     @JsonIgnore
     protected final int oneHundred = 100;
     @JsonIgnore
     protected final double zeroBoundsCheck = 0;
+    @JsonIgnore
+    private final double maxScoreMultiplierToxicity = 0.8;
+    @JsonIgnore
+    protected final int northIndex = 0;
+    @JsonIgnore
+    protected final int eastIndex = 1;
+    @JsonIgnore
+    protected final int southIndex = 2;
+    @JsonIgnore
+    protected final int westIndex = 3;
 
    /**
     * Method to calculate the possibility to attack the robot
     * */
     public double calculatePossibilityToAttackRobot(final double attackPossibility) {
-        return (oneHundred - attackPossibility) / tenPointZeroDivisor;
+        return (oneHundred - attackPossibility) / animalAttackDivisor;
     }
 
     /**
@@ -77,6 +87,70 @@ public abstract class Animal extends Entity implements UpdatableInterface {
 
     public Animal() {
 
+    }
+
+    /**
+     * Resets animal state after fertilizing soil
+     */
+    public void resetAnimal() {
+        this.hasDrankWater = false;
+        this.hasEatenPlant = false;
+        this.hasEatenPrey = false;
+        this.stateOfHunger = "hungry";
+    }
+
+    /**
+     * Feeds animal with both water and plant
+     * */
+    public void feedAnimalWithPlantAndWater(final Map map) {
+        this.feedAnimalWithWater(map);
+        this.feedAnimalWithPlant(map);
+    }
+
+    /**
+     *Checks if the animal has become intoxicated, it becomes if the toxicityAQ
+     * is greater than a set number
+     * */
+    public boolean checkIfAnimalHasBecomeIntoxicated(final Map map) {
+        Map.MapCell cell = map.getMapCell(this.x, this.y);
+        Air air = cell.getAir();
+        if (air == null) {
+            return false;
+        } else {
+            return air.getToxicityAQ() >= (maxScoreMultiplierToxicity * air.getMaxScore());
+        }
+    }
+
+    /**
+     * Feeds animal with water, if he drinks all the water,
+     * the water is eliminated from the map cell
+     * */
+    public void feedAnimalWithWater(final Map map) {
+        Map.MapCell currentCell = map.getMapCell(this.x, this.y);
+        Water water = currentCell.getWater();
+        Animal animal = currentCell.getAnimal();
+        double waterMass = water.getMass();
+        double animalMass = animal.getMass();
+        double waterToDrink = Math.min(animalMass * this.waterIntakeMultiplier, waterMass);
+        currentCell.getWater().setMass(currentCell.getWater().getMass() - waterToDrink);
+        currentCell.getAnimal().setMass(waterToDrink + currentCell.getAnimal().getMass());
+        if (currentCell.getWater().getMass() <= 0.0) {
+            currentCell.setWater(null);
+        }
+        currentCell.getAnimal().setStateOfHunger("well-fed");
+        currentCell.getAnimal().setHasDrankWater(true);
+    }
+
+    /**
+     * Feeds animal with plant, after eating the plant, it is eliminated from the map cell
+     * */
+    public void feedAnimalWithPlant(final Map map) {
+        Map.MapCell currentCell = map.getMapCell(this.x, this.y);
+        double plantMass = currentCell.getPlant().getMass();
+        currentCell.getAnimal().setMass(plantMass + currentCell.getAnimal().getMass());
+        currentCell.setPlant(null);
+        currentCell.getAnimal().setStateOfHunger("well-fed");
+        currentCell.getAnimal().setHasEatenPlant(true);
     }
 
     public Animal(final String name, final double mass, final String type) {
@@ -159,46 +233,19 @@ public abstract class Animal extends Entity implements UpdatableInterface {
      * */
     public void feedAnimalWithoutPrey(final Map map) {
         Map.MapCell currentCell = map.getMapCell(this.x, this.y);
+        Plant plant = currentCell.getPlant();
+        Water water = currentCell.getWater();
         this.feedWithPrey = false;
-        double intakeRate = this.waterIntakeMultiplier;
-        if (currentCell.getPlant() != null && currentCell.getPlant().isScannedByRobot()
+        if (plant != null && plant.isScannedByRobot()
                 &&
-                currentCell.getWater() != null && currentCell.getWater().isScannedByRobot()) {
-            double plantMass = currentCell.getPlant().getMass();
-            double waterToDrink = Math.min(currentCell.getAnimal().
-                    getMass() * intakeRate, currentCell.getWater().getMass());
-            double animalCurrentMass = currentCell.getAnimal().getMass();
-            currentCell.getWater().setMass(currentCell.getWater().getMass() - waterToDrink);
-            if (currentCell.getWater().getMass() <= 0.0) {
-                currentCell.setWater(null);
-            }
-            currentCell.getAnimal().setMass(waterToDrink + plantMass + animalCurrentMass);
-            currentCell.setPlant(null);
-            currentCell.getAnimal().setStateOfHunger("well-fed");
-            currentCell.getAnimal().setHasDrankWater(true);
-            currentCell.getAnimal().setHasEatenPlant(true);
-        } else if (currentCell.getPlant() != null
-                &&
-                currentCell.getPlant().isScannedByRobot()) {
-            double plantMass = currentCell.getPlant().getMass();
-            currentCell.getAnimal().setMass(plantMass + currentCell.getAnimal().getMass());
-            currentCell.setPlant(null);
-            currentCell.getAnimal().setStateOfHunger("well-fed");
-            currentCell.getAnimal().setHasEatenPlant(true);
-        } else if (currentCell.getWater() != null
-                &&
-                currentCell.getWater().isScannedByRobot()) {
-            double waterToDrink = Math.min(currentCell.getAnimal().getMass() * intakeRate,
-                    currentCell.getWater().getMass());
-            currentCell.getWater().setMass(currentCell.getWater().getMass() - waterToDrink);
-            currentCell.getAnimal().setMass(waterToDrink + currentCell.getAnimal().getMass());
-            if (currentCell.getWater().getMass() <= 0.0) {
-                currentCell.setWater(null);
-            }
-            currentCell.getAnimal().setStateOfHunger("well-fed");
-            currentCell.getAnimal().setHasDrankWater(true);
+                water != null && water.isScannedByRobot()) {
+            this.feedAnimalWithPlantAndWater(map);
+        } else if (plant != null && plant.isScannedByRobot()) {
+            this.feedAnimalWithPlant(map);
+        } else if (water != null && water.isScannedByRobot()) {
+            this.feedAnimalWithWater(map);
         } else {
-            currentCell.getAnimal().setStateOfHunger("hungry");
+            this.setStateOfHunger("hungry");
         }
     }
 
@@ -215,27 +262,27 @@ public abstract class Animal extends Entity implements UpdatableInterface {
         for (MapCardinalPoints mapCoordinates : MapCardinalPoints.values()) {
             if (mapCoordinates == MapCardinalPoints.NORTH) {
                 if (checkIfInBounds(map, this.x, this.y + 1)) {
-                    adjacentCells[0] = map.getMapCell(this.x, this.y + 1);
+                    adjacentCells[northIndex] = map.getMapCell(this.x, this.y + 1);
                 } else {
-                    adjacentCells[0] = null;
+                    adjacentCells[northIndex] = null;
                 }
             } else if (mapCoordinates == MapCardinalPoints.EAST) {
                 if (checkIfInBounds(map, this.x + 1, this.y)) {
-                    adjacentCells[1] = map.getMapCell(this.x + 1, this.y);
+                    adjacentCells[eastIndex] = map.getMapCell(this.x + 1, this.y);
                 } else {
-                    adjacentCells[1] = null;
+                    adjacentCells[eastIndex] = null;
                 }
             } else if (mapCoordinates == MapCardinalPoints.SOUTH) {
                 if (checkIfInBounds(map, this.x, this.y - 1)) {
-                    adjacentCells[2] = map.getMapCell(this.x, this.y - 1);
+                    adjacentCells[southIndex] = map.getMapCell(this.x, this.y - 1);
                 } else {
-                    adjacentCells[2] = null;
+                    adjacentCells[southIndex] = null;
                 }
             } else if (mapCoordinates == MapCardinalPoints.WEST) {
                 if (checkIfInBounds(map, this.x - 1, this.y)) {
-                    adjacentCells[bestCandidateIndex] = map.getMapCell(this.x - 1, this.y);
+                    adjacentCells[westIndex] = map.getMapCell(this.x - 1, this.y);
                 } else {
-                    adjacentCells[bestCandidateIndex] = null;
+                    adjacentCells[westIndex] = null;
                 }
             }
         }
@@ -252,6 +299,8 @@ public abstract class Animal extends Entity implements UpdatableInterface {
             if (adjacentCell != null) {
                 plant = adjacentCell.getPlant();
             }
+
+             // Sets the best index based on the presence of water and plant
             if (adjacentCell != null && water != null && water.isScannedByRobot()
                     &&
                     plant != null && plant.isScannedByRobot()) {
@@ -269,7 +318,6 @@ public abstract class Animal extends Entity implements UpdatableInterface {
 
         int bestPriority = -1;
         int bestIndex = -1;
-        double bestWaterQuality = -1.0;
 
         for (int priority : bestCandidate) {
             if (priority > bestPriority) {
@@ -277,6 +325,9 @@ public abstract class Animal extends Entity implements UpdatableInterface {
             }
         }
 
+        // finds the best cell for the animal to move to, based on the bestIndex
+        //if there are more than one candidate with water, the method
+        //findBestWaterQualityIndex solves the issue
         if (bestPriority == bestCandidateIndex) {
             bestIndex = findBestWaterQualityIndex(adjacentCells,
                     bestCandidate,
@@ -331,7 +382,7 @@ public abstract class Animal extends Entity implements UpdatableInterface {
             case "SOUTH" -> animalPrey = map.getMapCell(this.x, this.y - 1).getAnimal();
             case "WEST" -> animalPrey = map.getMapCell(this.x - 1, this.y).getAnimal();
             default -> {
-                //does nothing, returns null if the is no prey available
+                //does nothing, returns null if there is no prey available
             }
         }
 
@@ -357,6 +408,7 @@ public abstract class Animal extends Entity implements UpdatableInterface {
                                            final Map map,
                                            final Map.MapCell cell,
                                            final int timestamp) {
+
         if (this.processedForThisTimestamp) {
             return;
         }
@@ -365,36 +417,28 @@ public abstract class Animal extends Entity implements UpdatableInterface {
 
         if (this.stateOfHunger.equals("well-fed")) {
             if (this.hasEatenPlant && this.hasDrankWater) {
-                if (cell.getAir() != null) {
-                    Air air = cell.getAir();
-                    if (air.getToxicityAQ() < (0.8 * air.getMaxScore())) {
-                        Soil soil = cell.getSoil();
-                        soil.setOrganicMatter(soil.getOrganicMatter()
-                                +
-                                soilImprovementAfterEatingBothWaterAndPlant);
-                    }
+                if (!this.checkIfAnimalHasBecomeIntoxicated(map)) {
+                    Soil soil = cell.getSoil();
+                    soil.setOrganicMatter(soil.getOrganicMatter()
+                            +
+                            soilImprovementAfterEatingBothWaterAndPlant);
                 }
-                this.stateOfHunger = "hungry";
-                this.hasDrankWater = false;
-                this.hasEatenPlant = false;
-                this.hasEatenPrey = false;
+
+
+                this.resetAnimal();
             }
 
             if (this.hasEatenPlant || this.hasEatenPrey || this.hasDrankWater) {
-                if (cell.getAir() != null) {
-                    Air air = cell.getAir();
-                    if (air.getToxicityAQ() < (0.8 * air.getMaxScore())) {
-                        Soil soil = cell.getSoil();
-                        soil.setOrganicMatter(soil.getOrganicMatter()
-                                +
-                                soilImprovementAfterEatingSomethingElse);
-                    }
+                if (this.checkIfAnimalHasBecomeIntoxicated(map)) {
+                    Soil soil = cell.getSoil();
+                    soil.setOrganicMatter(soil.getOrganicMatter()
+                            +
+                            soilImprovementAfterEatingSomethingElse);
                 }
 
-                this.stateOfHunger = "hungry";
-                this.hasDrankWater = false;
-                this.hasEatenPlant = false;
-                this.hasEatenPrey = false;
+
+
+                this.resetAnimal();
             }
 
         }

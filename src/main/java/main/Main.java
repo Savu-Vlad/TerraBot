@@ -3,7 +3,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fileio.SimulationInput;
-import fileio.TerritorySectionParamsInput;
 import fileio.InputLoader;
 import fileio.CommandInput;
 import robot.Robot;
@@ -80,11 +79,13 @@ public final class Main {
         entityParserSecond.parseAllEntities(simulationParamsSecond, mapSecond);
 
         for (CommandInput command : commands) {
-            if (command.getCommand().equals("startSimulation")) {
+            if (command.getCommand().equals("startSimulation") && !robot.isSimulationStarted()) {
                 robot.setNumberOfSimulations(robot.getNumberOfSimulations() + 1);
             }
-            if (robot.getNumberOfSimulations() == 2) {
+            if (robot.getNumberOfSimulations() == 2 && !robot.isSimulationStarted()) {
                 robot = new Robot(energyPointsSecond, mapSecond, commands, 0, 0);
+                robot.setDatabaseInventory(new ArrayList<>());
+                robot.setInventory(new ArrayList<>());
                 map = mapSecond;
             }
             robot.executeCommand(command.getCommand(), map, output,

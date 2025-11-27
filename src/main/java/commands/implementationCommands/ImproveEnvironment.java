@@ -19,7 +19,6 @@ public class ImproveEnvironment implements CommandInterface {
      * to use is present in both.
      * If it is, the robot improves the environment by planting vegetation, adding water etc.
      * */
-
     @Override
     public void execute(final Robot robot, final Map map, final ArrayNode output,
                         final int timestamp, final CommandInput command) {

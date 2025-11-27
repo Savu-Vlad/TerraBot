@@ -48,9 +48,14 @@ public class Water extends Entity implements UpdatableInterface {
     // Frozen Score Constants
     private final double frozenScoreMultiplier = 0.2;
 
-    public Water(final String name, final String type, final double mass, final double salinity,
-                 final double ph, final double purity, final double turbidity,
-                 final double contaminantIndex, final boolean isFrozen) {
+    public Water(final String name, final String type,
+                 final double mass,
+                 final double salinity,
+                 final double ph,
+                 final double purity,
+                 final double turbidity,
+                 final double contaminantIndex,
+                 final boolean isFrozen) {
         super(name, mass, type);
         this.salinity = salinity;
         this.ph = ph;

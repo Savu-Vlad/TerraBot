@@ -1,11 +1,10 @@
 package robot;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import commands.implementationCommands.*;
+import entities.*;
 import entities.Air;
-import entities.Soil;
 import fileio.CommandInput;
 import map.Map;
-import entities.Entity;
 import java.util.ArrayList;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +34,6 @@ public class Robot {
      * the scanned objects are kept in inventory.
      * For the interactions to still happen.
      * */
-
     public Robot(final int energy, final Map map,
                  final ArrayList<CommandInput> commands, final int x, final int y) {
         this.commands = commands;
@@ -134,6 +132,7 @@ public class Robot {
                                final CommandInput command) {
         this.map.setMapTimestamp(timestamp);
         this.map.updateMapWithScan(this, timestamp);
+
         switch (commandName) {
             case "startSimulation" -> {
                 new StartSimulation().execute(this, map, output, timestamp, command);

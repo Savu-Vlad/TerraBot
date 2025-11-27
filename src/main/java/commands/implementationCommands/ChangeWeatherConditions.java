@@ -22,11 +22,11 @@ public class ChangeWeatherConditions implements CommandInterface {
 
         result.put("command", "changeWeatherConditions");
         String errorMessage = robot.returnBasicErrors();
+        Air air = map.getMapCell(robot.getX(), robot.getY()).getAir();
 
         if (errorMessage != null) {
             result.put("message", errorMessage);
         } else {
-            Air air  = map.getMapCell(robot.getX(), robot.getY()).getAir();
             String status = air.changeWeatherConditions(command);
 
             if (status == null) {
